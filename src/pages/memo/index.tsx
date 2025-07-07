@@ -1,10 +1,12 @@
 import { useStore } from "@ga-ut/store";
 import { useEffect, useState } from "react";
+import { authStore } from "@/domains/auth";
 import { memoStore } from "@/domains/memo";
-import { Button } from "@/shared/components/Button";
+import { Button } from "@/shared/components/button";
 import { ArrowLeftIcon } from "@/shared/components/icons/arrow-left-icon";
 import { DownloadIcon } from "@/shared/components/icons/download-icon";
 import { FilePlusIcon } from "@/shared/components/icons/file-plus-icon";
+import { LogOutIcon } from "@/shared/components/icons/log-out-icon";
 import { SaveIcon } from "@/shared/components/icons/save-icon";
 import { Trash2Icon } from "@/shared/components/icons/trash-2-icon";
 
@@ -21,6 +23,7 @@ const handleDownload = async () => {
 };
 
 export function MemoPage() {
+	const { user, logout } = useStore(authStore);
 	const { create, refresh } = useStore(memoStore);
 	const handleNewMemo = async () => {
 		create({ content: "New memo" });
@@ -33,7 +36,7 @@ export function MemoPage() {
 	return (
 		<div className="p-4">
 			<div className="flex justify-between items-center mb-4">
-				<h1 className="text-2xl font-bold">ZKVRM</h1>
+				<h1 className="text-2xl font-bold">{user?.username}'s Memos</h1>
 				<div className="flex items-center gap-2">
 					<Button
 						icon={FilePlusIcon}
@@ -45,6 +48,7 @@ export function MemoPage() {
 						title="Download All Memos"
 						onClick={handleDownload}
 					/>
+					<Button icon={LogOutIcon} title="Logout" onClick={() => logout()} />
 				</div>
 			</div>
 			<MemoList />
@@ -92,6 +96,7 @@ function MemoItem({ memo }: { memo: { id: number; content: string } }) {
 				<div className="flex justify-between items-center mb-4">
 					<ArrowLeftIcon
 						className="cursor-pointer text-gray-600 hover:text-gray-900 w-6 h-6"
+						title="Go Back"
 						onClick={() => setSelected(false)}
 					/>
 					<div className="flex items-center gap-2">

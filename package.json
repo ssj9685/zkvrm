@@ -8,7 +8,9 @@
 	"scripts": {
 		"dev": "bun --hot src/server.tsx",
 		"build": "bun build ./src/assets/index.html --outdir=dist --sourcemap --target=browser --minify --define:process.env.NODE_ENV='\"production\"' --env='BUN_PUBLIC_*'",
-		"start": "NODE_ENV=production bun src/server.tsx"
+		"start": "NODE_ENV=production bun src/server.tsx",
+		"migrate": "bun run migrate.ts",
+		"create-migration": "bun run create-migration.ts"
 	},
 	"dependencies": {
 		"@ga-ut/store": "^1.1.1",

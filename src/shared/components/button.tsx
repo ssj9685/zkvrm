@@ -21,7 +21,7 @@ export function Button({ icon: Icon, title, ...props }: ButtonProps) {
 			className="p-2 rounded-full hover:bg-gray-200"
 			{...props}
 		>
-			<Icon className="w-5 h-5" />
+			<Icon className="w-5 h-5" title={title} />
 		</button>
 	);
 }
