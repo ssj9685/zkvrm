@@ -1,8 +1,12 @@
 import { useState } from "react";
-import { Input } from "@/shared/components/input";
 import { FormButton } from "@/shared/components/form-button";
+import { Input } from "@/shared/components/input";
 
-export function RegisterPage({ onRegisterSuccess }: { onRegisterSuccess: () => void }) {
+export function RegisterPage({
+	onRegisterSuccess,
+}: {
+	onRegisterSuccess: () => void;
+}) {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState<string | null>(null);

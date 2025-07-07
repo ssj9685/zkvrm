@@ -126,9 +126,18 @@ const server = serve({
 				const user = await getUserFromSession(req);
 				if (!user) return new Response("Unauthorized", { status: 401 });
 
-				const memos = db
-					.query("SELECT * FROM memos WHERE user_id = ?")
-					.all(user.id);
+				const url = new URL(req.url);
+				const searchQuery = url.searchParams.get("query");
+
+				let query = "SELECT * FROM memos WHERE user_id = ?";
+				const params: (string | number)[] = [user.id];
+
+				if (searchQuery) {
+					query += " AND content LIKE ?";
+					params.push(`%${searchQuery}%`);
+				}
+
+				const memos = db.query(query).all(...params);
 				return Response.json(memos);
 			},
 			async POST(req) {

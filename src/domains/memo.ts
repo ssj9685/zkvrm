@@ -6,14 +6,15 @@ type Memo = {
 	content: string;
 };
 
-async function refresh() {
-	return await fetcher.get<Memo[]>("/api/memo");
+async function refresh(query?: string) {
+	const url = query ? `/api/memo?query=${encodeURIComponent(query)}` : "/api/memo";
+	return await fetcher.get<Memo[]>(url);
 }
 
 export const memoStore = new Store({
 	memos: [] as Memo[],
-	async refresh() {
-		this.memos = await refresh();
+	async refresh(query?: string) {
+		this.memos = await refresh(query);
 	},
 	async create(data: Omit<Memo, "id">) {
 		await fetcher.post("/api/memo", data);

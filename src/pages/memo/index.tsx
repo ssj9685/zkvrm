@@ -8,7 +8,9 @@ import { DownloadIcon } from "@/shared/components/icons/download-icon";
 import { FilePlusIcon } from "@/shared/components/icons/file-plus-icon";
 import { LogOutIcon } from "@/shared/components/icons/log-out-icon";
 import { SaveIcon } from "@/shared/components/icons/save-icon";
+import { SearchIcon } from "@/shared/components/icons/search-icon";
 import { Trash2Icon } from "@/shared/components/icons/trash-2-icon";
+import { useDebounce } from "@/shared/hooks/use-debounce";
 
 const handleDownload = async () => {
 	const response = await fetch("/api/memo/download");
@@ -25,18 +27,21 @@ const handleDownload = async () => {
 export function MemoPage() {
 	const { user, logout } = useStore(authStore);
 	const { create, refresh } = useStore(memoStore);
+	const [searchTerm, setSearchTerm] = useState("");
+	const debouncedSearchTerm = useDebounce(searchTerm, 500); // 500ms debounce
+
 	const handleNewMemo = async () => {
 		create({ content: "New memo" });
 	};
 
 	useEffect(() => {
-		refresh();
-	}, []);
+		refresh(debouncedSearchTerm);
+	}, [debouncedSearchTerm]);
 
 	return (
 		<div className="p-4">
 			<div className="flex justify-between items-center mb-4">
-				<h1 className="text-2xl font-bold">{user?.username}'s Memos</h1>
+				<h1 className="text-2xl font-bold">{user?.username}'s zkvrm</h1>
 				<div className="flex items-center gap-2">
 					<Button
 						icon={FilePlusIcon}
@@ -50,6 +55,16 @@ export function MemoPage() {
 					/>
 					<Button icon={LogOutIcon} title="Logout" onClick={() => logout()} />
 				</div>
+			</div>
+			<div className="relative mb-4 w-full sm:w-64">
+				<input
+					type="text"
+					placeholder="Search zkvrm..."
+					value={searchTerm}
+					onChange={(e) => setSearchTerm(e.target.value)}
+					className="pl-8 pr-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-gray-500 w-full"
+				/>
+				<SearchIcon className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
 			</div>
 			<MemoList />
 		</div>
