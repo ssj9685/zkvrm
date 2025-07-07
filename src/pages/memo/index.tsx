@@ -5,6 +5,7 @@ import { memoStore } from "@/domains/memo";
 import { Button } from "@/shared/components/button";
 import { ArrowLeftIcon } from "@/shared/components/icons/arrow-left-icon";
 import { DownloadIcon } from "@/shared/components/icons/download-icon";
+import { EmptyStateIcon } from "@/shared/components/icons/empty-state-icon";
 import { FilePlusIcon } from "@/shared/components/icons/file-plus-icon";
 import { LogOutIcon } from "@/shared/components/icons/log-out-icon";
 import { SaveIcon } from "@/shared/components/icons/save-icon";
@@ -75,7 +76,11 @@ function MemoList() {
 	const { memos } = useStore(memoStore);
 
 	if (!memos || memos.length === 0) {
-		return <p>No memos yet. Create one!</p>;
+		return (
+			<div className="flex flex-col items-center justify-center h-64 text-gray-500">
+				<EmptyStateIcon className="w-12 h-12 mb-4" title="No memos" />
+			</div>
+		);
 	}
 
 	return (
@@ -87,11 +92,19 @@ function MemoList() {
 	);
 }
 
-function MemoItem({ memo }: { memo: { id: number; content: string } }) {
+function MemoItem({
+	memo,
+}: {
+	memo: { id: number; content: string; created_at: number };
+}) {
 	const [selected, setSelected] = useState(false);
 	const [currentContent, setCurrentContent] = useState(memo.content);
 	const { update, remove } = useStore(memoStore);
 
+	const formattedDate = new Date(memo.created_at)
+		.toISOString()
+		.slice(0, 16)
+		.replace("T", " ");
 	const handleSave = async () => {
 		if (memo.content === currentContent) {
 			setSelected(false);
@@ -132,11 +145,14 @@ function MemoItem({ memo }: { memo: { id: number; content: string } }) {
 		<button
 			type="button"
 			onClick={() => setSelected(true)}
-			className="block w-full h-32 p-4 border rounded-lg text-left hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-500 overflow-hidden"
+			className="relative block w-full h-32 p-4 border rounded-lg text-left hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-500 overflow-hidden"
 		>
-			<p className="text-gray-800 whitespace-pre-wrap break-words">
+			<p className="text-gray-800 whitespace-pre-wrap break-words overflow-hidden line-clamp-3">
 				{memo.content}
 			</p>
+			<div className="absolute bottom-2 right-2 text-xs text-gray-500">
+				{formattedDate}
+			</div>
 		</button>
 	);
 }

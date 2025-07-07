@@ -18,7 +18,7 @@ function createMigrationFile(migrationName: string) {
   ].join("");
 
   const filename = `${timestamp}_${migrationName}.sql`;
-  const filePath = join(import.meta.dir, "..", "migrations", filename);
+  const filePath = join(import.meta.dir, "migrations", filename);
 
   try {
     writeFileSync(filePath, "");

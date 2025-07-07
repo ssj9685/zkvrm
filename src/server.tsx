@@ -2,10 +2,10 @@ import { Database } from "bun:sqlite";
 import { serve } from "bun";
 import html from "@/assets/index.html";
 
-const db = new Database("zkvrm.sqlite", { create: true });
-
 // Run migrations before starting the server
 await import("../migrate");
+
+const db = new Database("zkvrm.sqlite", { create: true });
 
 // --- Authentication Helper ---
 async function getUserFromSession(
@@ -136,6 +136,7 @@ const server = serve({
 					query += " AND content LIKE ?";
 					params.push(`%${searchQuery}%`);
 				}
+				query += " ORDER BY created_at DESC";
 
 				const memos = db.query(query).all(...params);
 				return Response.json(memos);
@@ -145,9 +146,10 @@ const server = serve({
 				if (!user) return new Response("Unauthorized", { status: 401 });
 
 				const { content } = await req.json();
-				db.run("INSERT INTO memos (user_id, content) VALUES (?, ?)", [
+				db.run("INSERT INTO memos (user_id, content, created_at) VALUES (?, ?, ?)", [
 					user.id,
 					content,
+					Date.now(),
 				]);
 				return new Response("OK");
 			},
