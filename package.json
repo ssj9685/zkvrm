@@ -1,0 +1,27 @@
+{
+	"name": "bun-react-template",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"main": "src/server.tsx",
+	"module": "src/server.tsx",
+	"scripts": {
+		"dev": "bun --hot src/server.tsx",
+		"build": "bun build ./src/assets/index.html --outdir=dist --sourcemap --target=browser --minify --define:process.env.NODE_ENV='\"production\"' --env='BUN_PUBLIC_*'",
+		"start": "NODE_ENV=production bun src/server.tsx"
+	},
+	"dependencies": {
+		"@ga-ut/store": "^1.1.1",
+		"bun-plugin-tailwind": "latest",
+		"eslint-plugin-react-hooks": "^0.0.0-experimental-d92056ef-20250627",
+		"react": "^0.0.0-experimental-d92056ef-20250627",
+		"react-dom": "^0.0.0-experimental-d92056ef-20250627",
+		"tailwindcss": "^4"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.0.6",
+		"@types/bun": "latest",
+		"@types/react": "^19",
+		"@types/react-dom": "^19"
+	}
+}
