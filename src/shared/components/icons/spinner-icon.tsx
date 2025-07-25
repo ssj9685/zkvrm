@@ -1,4 +1,4 @@
-export function SaveIcon({
+export function SpinnerIcon({
 	className,
 	title,
 }: {
@@ -19,9 +19,7 @@ export function SaveIcon({
 			className={className}
 		>
 			<title className="sr-only">{title}</title>
-			<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-			<path d="M7 21v-8h10v8" />
-			<path d="M7 3v5h8" />
+			<path d="M21 12a9 9 0 1 1-6.219-8.56" />
 		</svg>
 	);
 }

@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { authStore } from "@/domains/auth";
 import { FormButton } from "@/shared/components/form-button";
 import { Input } from "@/shared/components/input";
+import { toast } from "@/shared/components/toast/toast-overlay";
 
 export function RegisterPage({
 	onRegisterSuccess,
@@ -9,23 +11,15 @@ export function RegisterPage({
 }) {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
-	const [error, setError] = useState<string | null>(null);
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		setError(null);
 
-		const response = await fetch("/api/auth/register", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ username, password }),
-		});
-
-		if (response.ok) {
+		try {
+			await authStore.getState().register({ username, password });
 			onRegisterSuccess();
-		} else {
-			const errorMessage = await response.text();
-			setError(errorMessage);
+		} catch (_) {
+			toast.open("Failed to register");
 		}
 	};
 
@@ -49,8 +43,6 @@ export function RegisterPage({
 					onChange={(e) => setPassword(e.target.value)}
 					required
 				/>
-
-				{error && <p className="text-sm text-red-600">{error}</p>}
 
 				<FormButton>Create Account</FormButton>
 			</form>

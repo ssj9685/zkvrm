@@ -1,4 +1,10 @@
-export function SearchIcon({ className, title }: { className?: string, title?: string }) {
+export function SearchIcon({
+	className,
+	title,
+}: {
+	className?: string;
+	title: string;
+}) {
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -12,7 +18,7 @@ export function SearchIcon({ className, title }: { className?: string, title?: s
 			strokeLinejoin="round"
 			className={className}
 		>
-			{title && <title>{title}</title>}
+			<title className="sr-only">{title}</title>
 			<circle cx="11" cy="11" r="8" />
 			<path d="m21 21-4.3-4.3" />
 		</svg>

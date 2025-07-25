@@ -1,10 +1,4 @@
-export function SaveIcon({
-	className,
-	title,
-}: {
-	className?: string;
-	title: string;
-}) {
+export function MoreHorizontalIcon({ className, title }: { className?: string, title: string }) {
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -19,9 +13,9 @@ export function SaveIcon({
 			className={className}
 		>
 			<title className="sr-only">{title}</title>
-			<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-			<path d="M7 21v-8h10v8" />
-			<path d="M7 3v5h8" />
+			<circle cx="12" cy="12" r="1" />
+			<circle cx="19" cy="12" r="1" />
+			<circle cx="5" cy="12" r="1" />
 		</svg>
 	);
 }

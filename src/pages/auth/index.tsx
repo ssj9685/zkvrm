@@ -1,19 +1,20 @@
 import { useState } from "react";
+import { toast } from "@/shared/components/toast/toast-overlay";
 import { LoginPage } from "./login-page";
 import { RegisterPage } from "./register-page";
 
-export function AuthPage({ onLoginSuccess }: { onLoginSuccess: () => void }) {
+export function AuthPage() {
 	const [isLogin, setIsLogin] = useState(true);
 
 	const handleRegisterSuccess = () => {
 		setIsLogin(true);
-		alert("Registration successful! Please log in.");
+		toast.open("Registration successful! Please log in.");
 	};
 
 	return (
 		<div className="min-h-screen flex items-center justify-center bg-gray-50">
 			{isLogin ? (
-				<LoginPage onLoginSuccess={onLoginSuccess} />
+				<LoginPage />
 			) : (
 				<RegisterPage onRegisterSuccess={handleRegisterSuccess} />
 			)}

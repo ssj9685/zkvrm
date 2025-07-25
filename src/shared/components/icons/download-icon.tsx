@@ -1,4 +1,10 @@
-export function DownloadIcon({ className, title }: { className?: string, title?: string }) {
+export function DownloadIcon({
+	className,
+	title,
+}: {
+	className?: string;
+	title: string;
+}) {
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -12,7 +18,7 @@ export function DownloadIcon({ className, title }: { className?: string, title?:
 			strokeLinejoin="round"
 			className={className}
 		>
-			{title && <title>{title}</title>}
+			<title className="sr-only">{title}</title>
 			<path d="M12 5v14M19 12l-7 7-7-7" />
 		</svg>
 	);

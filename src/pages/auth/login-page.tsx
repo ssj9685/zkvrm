@@ -1,27 +1,28 @@
+import { FetcherError } from "@ga-ut/fetcher";
+import { useStore } from "@ga-ut/store";
 import { useState } from "react";
+import { authStore } from "@/domains/auth";
 import { FormButton } from "@/shared/components/form-button";
 import { Input } from "@/shared/components/input";
+import { toast } from "@/shared/components/toast/toast-overlay";
 
-export function LoginPage({ onLoginSuccess }: { onLoginSuccess: () => void }) {
+export function LoginPage() {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
-	const [error, setError] = useState<string | null>(null);
+	const { login, checkAuth } = useStore(authStore);
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		setError(null);
 
-		const response = await fetch("/api/auth/login", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ username, password }),
-		});
-
-		if (response.ok) {
-			onLoginSuccess();
-		} else {
-			const errorMessage = await response.text();
-			setError(errorMessage);
+		try {
+			await login({ username, password });
+			await checkAuth();
+		} catch (error) {
+			if (error instanceof FetcherError) {
+				if (error.statusCode === 401) {
+					toast.open("Invalid username or password");
+				}
+			}
 		}
 	};
 
@@ -45,8 +46,6 @@ export function LoginPage({ onLoginSuccess }: { onLoginSuccess: () => void }) {
 					onChange={(e) => setPassword(e.target.value)}
 					required
 				/>
-
-				{error && <p className="text-sm text-red-600">{error}</p>}
 
 				<FormButton>Sign In</FormButton>
 			</form>

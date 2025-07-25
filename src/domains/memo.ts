@@ -28,7 +28,10 @@ export const memoStore = new Store({
 		this.memos = await refresh();
 	},
 	async remove({ id }: Pick<Memo, "id">) {
-		await fetcher.delete(`/api/memo/${id}`);
+		await fetcher.delete(`/api/memo/${id}`, {});
 		this.memos = await refresh();
+	},
+	async download() {
+		return await fetcher.get<Blob>("/api/memo/download");
 	},
 });

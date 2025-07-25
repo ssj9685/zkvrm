@@ -1,4 +1,12 @@
-export function ArrowLeftIcon({ className, title, ...props }: { className?: string, title?: string, onClick?: () => void }) {
+export function ArrowLeftIcon({
+	className,
+	title,
+	...props
+}: {
+	className?: string;
+	title: string;
+	onClick?: () => void;
+}) {
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -13,7 +21,7 @@ export function ArrowLeftIcon({ className, title, ...props }: { className?: stri
 			className={className}
 			{...props}
 		>
-			{title && <title>{title}</title>}
+			<title className="sr-only">{title}</title>
 			<path d="M19 12H5M12 19l-7-7 7-7" />
 		</svg>
 	);

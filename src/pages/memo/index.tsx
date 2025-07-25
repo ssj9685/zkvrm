@@ -8,14 +8,15 @@ import { DownloadIcon } from "@/shared/components/icons/download-icon";
 import { EmptyStateIcon } from "@/shared/components/icons/empty-state-icon";
 import { FilePlusIcon } from "@/shared/components/icons/file-plus-icon";
 import { LogOutIcon } from "@/shared/components/icons/log-out-icon";
-import { SaveIcon } from "@/shared/components/icons/save-icon";
 import { SearchIcon } from "@/shared/components/icons/search-icon";
+import { SettingsIcon } from "@/shared/components/icons/settings-icon";
 import { Trash2Icon } from "@/shared/components/icons/trash-2-icon";
-import { useDebounce } from "@/shared/hooks/use-debounce";
+import { PopoverMenu } from "@/shared/components/popover-menu";
+import { toast } from "@/shared/components/toast/toast-overlay";
+import { useDebounceCallback } from "@/shared/hooks/use-debounce-callback";
 
 const handleDownload = async () => {
-	const response = await fetch("/api/memo/download");
-	const blob = await response.blob();
+	const blob = await memoStore.getState().download();
 	const url = window.URL.createObjectURL(blob);
 	const a = document.createElement("a");
 	a.href = url;
@@ -29,45 +30,75 @@ export function MemoPage() {
 	const { user, logout } = useStore(authStore);
 	const { create, refresh } = useStore(memoStore);
 	const [searchTerm, setSearchTerm] = useState("");
-	const debouncedSearchTerm = useDebounce(searchTerm, 500); // 500ms debounce
+
+	const debouncedRefresh = useDebounceCallback(refresh, 500);
 
 	const handleNewMemo = async () => {
 		create({ content: "New memo" });
 	};
 
+	const handleLogout = () => {
+		logout();
+	};
+
+	const handleDownloadClick = () => {
+		handleDownload();
+	};
+
 	useEffect(() => {
-		refresh(debouncedSearchTerm);
-	}, [debouncedSearchTerm]);
+		refresh("");
+	}, [refresh]);
 
 	return (
-		<div className="p-4">
+		<div className="p-4 relative min-h-screen">
 			<div className="flex justify-between items-center mb-4">
-				<h1 className="text-2xl font-bold">{user?.username}'s zkvrm</h1>
-				<div className="flex items-center gap-2">
-					<Button
-						icon={FilePlusIcon}
-						title="New Memo"
-						onClick={handleNewMemo}
-					/>
-					<Button
-						icon={DownloadIcon}
-						title="Download All Memos"
-						onClick={handleDownload}
-					/>
-					<Button icon={LogOutIcon} title="Logout" onClick={() => logout()} />
-				</div>
+				<h1 className="text-xl font-semibold">{user?.username}</h1>
+				<PopoverMenu icon={SettingsIcon} title="Options">
+					<button
+						type="button"
+						onClick={handleDownloadClick}
+						className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+					>
+						<DownloadIcon className="w-4 h-4 mr-2" title="Download" />
+						Download
+					</button>
+					<button
+						type="button"
+						onClick={handleLogout}
+						className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+					>
+						<LogOutIcon className="w-4 h-4 mr-2" title="Logout" />
+						Logout
+					</button>
+				</PopoverMenu>
 			</div>
 			<div className="relative mb-4 w-full sm:w-64">
 				<input
 					type="text"
-					placeholder="Search zkvrm..."
+					placeholder="Search memos..."
 					value={searchTerm}
-					onChange={(e) => setSearchTerm(e.target.value)}
+					onChange={(e) => {
+						setSearchTerm(e.target.value);
+						debouncedRefresh(e.target.value);
+					}}
 					className="pl-8 pr-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-gray-500 w-full"
 				/>
-				<SearchIcon className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+				<SearchIcon
+					className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+					title="Search"
+				/>
 			</div>
 			<MemoList />
+
+			{/* Floating Action Button for New Memo */}
+			<button
+				type="button"
+				title="New Memo"
+				onClick={handleNewMemo}
+				className="fixed bottom-4 right-4 p-4 rounded-full bg-gray-800 text-white shadow-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+			>
+				<FilePlusIcon className="w-6 h-6" title="New Memo" />
+			</button>
 		</div>
 	);
 }
@@ -78,7 +109,7 @@ function MemoList() {
 	if (!memos || memos.length === 0) {
 		return (
 			<div className="flex flex-col items-center justify-center h-64 text-gray-500">
-				<EmptyStateIcon className="w-12 h-12 mb-4" title="No memos" />
+				<EmptyStateIcon className="w-12 h-12 mb-4" title="No Memos" />
 			</div>
 		);
 	}
@@ -101,18 +132,18 @@ function MemoItem({
 	const [currentContent, setCurrentContent] = useState(memo.content);
 	const { update, remove } = useStore(memoStore);
 
+	const debouncedUpdate = useDebounceCallback((content: string) => {
+		try {
+			update({ id: memo.id, content: content });
+		} catch (_) {
+			toast.open("Save failed!");
+		}
+	}, 500);
+
 	const formattedDate = new Date(memo.created_at)
 		.toISOString()
 		.slice(0, 16)
 		.replace("T", " ");
-	const handleSave = async () => {
-		if (memo.content === currentContent) {
-			setSelected(false);
-			return;
-		}
-		update({ id: memo.id, content: currentContent });
-		setSelected(false);
-	};
 
 	const handleDelete = () => {
 		remove({ id: memo.id });
@@ -128,14 +159,20 @@ function MemoItem({
 						onClick={() => setSelected(false)}
 					/>
 					<div className="flex items-center gap-2">
-						<Button icon={Trash2Icon} title="Delete" onClick={handleDelete} />
-						<Button icon={SaveIcon} title="Save" onClick={handleSave} />
+						<Button
+							icon={Trash2Icon}
+							title="Delete Memo"
+							onClick={handleDelete}
+						/>
 					</div>
 				</div>
 				<textarea
 					className="w-full h-[calc(100%-50px)] border rounded p-2"
 					value={currentContent}
-					onChange={(e) => setCurrentContent(e.target.value)}
+					onChange={(e) => {
+						setCurrentContent(e.target.value);
+						debouncedUpdate(e.target.value);
+					}}
 				/>
 			</div>
 		);
