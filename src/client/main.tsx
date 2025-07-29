@@ -7,7 +7,7 @@
 
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import Index from "../pages";
+import Index from "@client/pages";
 
 const elem = document.getElementById("root");
 if (!elem) throw new Error("Root element not found");

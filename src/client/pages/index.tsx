@@ -1,10 +1,10 @@
-import "../assets/index.css";
+import "@client/index.css";
 import { useStore } from "@ga-ut/store";
 import { useEffect } from "react";
-import { authStore } from "@/domains/auth";
-import { SpinnerIcon } from "@/shared/components/icons/spinner-icon";
-import { ModalSpace } from "@/shared/components/modal/modal-overlay";
-import { ToastSpace } from "@/shared/components/toast/toast-overlay";
+import { authStore } from "@client/store/auth";
+import { SpinnerIcon } from "@client/components/icons/spinner-icon";
+import { ModalSpace } from "@client/components/modal/modal-overlay";
+import { ToastSpace } from "@client/components/toast/toast-overlay";
 import { AuthPage } from "./auth";
 import { MemoPage } from "./memo";
 

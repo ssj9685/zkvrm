@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { toast } from "@/shared/components/toast/toast-overlay";
+import { toast } from "@client/components/toast/toast-overlay";
 import { LoginPage } from "./login-page";
 import { RegisterPage } from "./register-page";
 

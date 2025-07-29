@@ -1,9 +1,9 @@
 import { Database } from "bun:sqlite";
+import html from "@client/index.html";
 import { serve } from "bun";
-import html from "@/assets/index.html";
 
 // Run migrations before starting the server
-await import("../migrate");
+await import("../../scripts/migrate");
 
 const db = new Database("zkvrm.sqlite", { create: true });
 
@@ -35,8 +35,6 @@ async function getUserFromSession(
 const server = serve({
 	routes: {
 		"/*": html,
-
-		// --- Auth Routes ---
 		"/api/auth/register": {
 			async POST(req) {
 				const { username, password } = await req.json();
@@ -146,11 +144,10 @@ const server = serve({
 				if (!user) return new Response("Unauthorized", { status: 401 });
 
 				const { content } = await req.json();
-				db.run("INSERT INTO memos (user_id, content, created_at) VALUES (?, ?, ?)", [
-					user.id,
-					content,
-					Date.now(),
-				]);
+				db.run(
+					"INSERT INTO memos (user_id, content, created_at) VALUES (?, ?, ?)",
+					[user.id, content, Date.now()],
+				);
 				return new Response("OK");
 			},
 		},

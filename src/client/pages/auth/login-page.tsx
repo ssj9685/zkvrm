@@ -1,10 +1,10 @@
 import { FetcherError } from "@ga-ut/fetcher";
 import { useStore } from "@ga-ut/store";
 import { useState } from "react";
-import { authStore } from "@/domains/auth";
-import { FormButton } from "@/shared/components/form-button";
-import { Input } from "@/shared/components/input";
-import { toast } from "@/shared/components/toast/toast-overlay";
+import { authStore } from "@client/store/auth";
+import { FormButton } from "@client/components/form-button";
+import { Input } from "@client/components/input";
+import { toast } from "@client/components/toast/toast-overlay";
 
 export function LoginPage() {
 	const [username, setUsername] = useState("");

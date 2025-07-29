@@ -1,5 +1,5 @@
 import { Store } from "@ga-ut/store";
-import { fetcher } from "@/shared/utils/fetcher";
+import { fetcher } from "@client/lib/utils/fetcher";
 
 type Memo = {
 	id: number;

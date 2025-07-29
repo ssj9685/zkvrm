@@ -1,6 +1,6 @@
+import { LoginPage } from "@client/pages/auth/login-page";
+import { RegisterPage } from "@client/pages/auth/register-page";
 import { Store } from "@ga-ut/store";
-import { LoginPage } from "@/pages/auth/login-page";
-import { RegisterPage } from "@/pages/auth/register-page";
 
 const routes = {
 	"/sign-in": LoginPage,

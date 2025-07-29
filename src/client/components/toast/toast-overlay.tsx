@@ -1,9 +1,9 @@
 "use client";
 
+import { cn } from "@client/lib/utils/cn";
+import { createOverlayStore, OverlaySpace } from "@client/lib/utils/overlay";
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import { cn } from "@/shared/utils/cn";
-import { createOverlayStore, OverlaySpace } from "@/shared/utils/overlay";
 
 const store = createOverlayStore();
 const { open: overlayOpen } = store.getState();

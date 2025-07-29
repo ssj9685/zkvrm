@@ -1,19 +1,19 @@
 import { useStore } from "@ga-ut/store";
 import { useEffect, useState } from "react";
-import { authStore } from "@/domains/auth";
-import { memoStore } from "@/domains/memo";
-import { Button } from "@/shared/components/button";
-import { ArrowLeftIcon } from "@/shared/components/icons/arrow-left-icon";
-import { DownloadIcon } from "@/shared/components/icons/download-icon";
-import { EmptyStateIcon } from "@/shared/components/icons/empty-state-icon";
-import { FilePlusIcon } from "@/shared/components/icons/file-plus-icon";
-import { LogOutIcon } from "@/shared/components/icons/log-out-icon";
-import { SearchIcon } from "@/shared/components/icons/search-icon";
-import { SettingsIcon } from "@/shared/components/icons/settings-icon";
-import { Trash2Icon } from "@/shared/components/icons/trash-2-icon";
-import { PopoverMenu } from "@/shared/components/popover-menu";
-import { toast } from "@/shared/components/toast/toast-overlay";
-import { useDebounceCallback } from "@/shared/hooks/use-debounce-callback";
+import { authStore } from "@client/store/auth";
+import { memoStore } from "@client/store/memo";
+import { Button } from "@client/components/button";
+import { ArrowLeftIcon } from "@client/components/icons/arrow-left-icon";
+import { DownloadIcon } from "@client/components/icons/download-icon";
+import { EmptyStateIcon } from "@client/components/icons/empty-state-icon";
+import { FilePlusIcon } from "@client/components/icons/file-plus-icon";
+import { LogOutIcon } from "@client/components/icons/log-out-icon";
+import { SearchIcon } from "@client/components/icons/search-icon";
+import { SettingsIcon } from "@client/components/icons/settings-icon";
+import { Trash2Icon } from "@client/components/icons/trash-2-icon";
+import { PopoverMenu } from "@client/components/popover-menu";
+import { toast } from "@client/components/toast/toast-overlay";
+import { useDebounceCallback } from "@client/hooks/use-debounce-callback";
 
 const handleDownload = async () => {
 	const blob = await memoStore.getState().download();
