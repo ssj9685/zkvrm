@@ -1,9 +1,10 @@
 import type React from "react";
-import { type ElementType, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "./button";
+import type { Icon } from "./icons/icon";
 
 interface PopoverMenuProps {
-	icon: ElementType;
+	icon: ReturnType<typeof Icon>;
 	title: string;
 	children: React.ReactNode;
 }
@@ -23,7 +24,7 @@ export function PopoverMenu({ icon, title, children }: PopoverMenuProps) {
 		return () => {
 			document.removeEventListener("mousedown", handleClickOutside);
 		};
-	}, [menuRef]);
+	}, []);
 
 	return (
 		<div className="relative" ref={menuRef}>

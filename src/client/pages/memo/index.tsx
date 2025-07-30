@@ -1,19 +1,12 @@
-import { useStore } from "@ga-ut/store";
-import { useEffect, useState } from "react";
-import { authStore } from "@client/store/auth";
-import { memoStore } from "@client/store/memo";
 import { Button } from "@client/components/button";
-import { ArrowLeftIcon } from "@client/components/icons/arrow-left-icon";
-import { DownloadIcon } from "@client/components/icons/download-icon";
-import { EmptyStateIcon } from "@client/components/icons/empty-state-icon";
-import { FilePlusIcon } from "@client/components/icons/file-plus-icon";
-import { LogOutIcon } from "@client/components/icons/log-out-icon";
-import { SearchIcon } from "@client/components/icons/search-icon";
-import { SettingsIcon } from "@client/components/icons/settings-icon";
-import { Trash2Icon } from "@client/components/icons/trash-2-icon";
+import { Icon } from "@client/components/icons/icon";
 import { PopoverMenu } from "@client/components/popover-menu";
 import { toast } from "@client/components/toast/toast-overlay";
 import { useDebounceCallback } from "@client/hooks/use-debounce-callback";
+import { authStore } from "@client/store/auth";
+import { memoStore } from "@client/store/memo";
+import { useStore } from "@ga-ut/store";
+import { useEffect, useState } from "react";
 
 const handleDownload = async () => {
 	const blob = await memoStore.getState().download();
@@ -53,13 +46,13 @@ export function MemoPage() {
 		<div className="p-4 relative min-h-screen">
 			<div className="flex justify-between items-center mb-4">
 				<h1 className="text-xl font-semibold">{user?.username}</h1>
-				<PopoverMenu icon={SettingsIcon} title="Options">
+				<PopoverMenu icon={<Icon name="settings" className="w-6 h-6" title="Settings" />} title="Options">
 					<button
 						type="button"
 						onClick={handleDownloadClick}
 						className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
 					>
-						<DownloadIcon className="w-4 h-4 mr-2" title="Download" />
+						<Icon name="download" className="w-4 h-4 mr-2" title="Download" />
 						Download
 					</button>
 					<button
@@ -67,7 +60,7 @@ export function MemoPage() {
 						onClick={handleLogout}
 						className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
 					>
-						<LogOutIcon className="w-4 h-4 mr-2" title="Logout" />
+						<Icon name="log-out" className="w-4 h-4 mr-2" title="Logout" />
 						Logout
 					</button>
 				</PopoverMenu>
@@ -83,7 +76,8 @@ export function MemoPage() {
 					}}
 					className="pl-8 pr-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-gray-500 w-full"
 				/>
-				<SearchIcon
+				<Icon
+					name="search"
 					className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
 					title="Search"
 				/>
@@ -97,7 +91,7 @@ export function MemoPage() {
 				onClick={handleNewMemo}
 				className="fixed bottom-4 right-4 p-4 rounded-full bg-gray-800 text-white shadow-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
 			>
-				<FilePlusIcon className="w-6 h-6" title="New Memo" />
+				<Icon name="file-plus" className="w-6 h-6" title="New Memo" />
 			</button>
 		</div>
 	);
@@ -109,7 +103,7 @@ function MemoList() {
 	if (!memos || memos.length === 0) {
 		return (
 			<div className="flex flex-col items-center justify-center h-64 text-gray-500">
-				<EmptyStateIcon className="w-12 h-12 mb-4" title="No Memos" />
+				<Icon name="empty-state" className="w-12 h-12 mb-4" title="No Memos" />
 			</div>
 		);
 	}
@@ -153,14 +147,15 @@ function MemoItem({
 		return (
 			<div className="fixed inset-0 bg-white p-4 z-10">
 				<div className="flex justify-between items-center mb-4">
-					<ArrowLeftIcon
+					<Icon
+						name="arrow-left"
 						className="cursor-pointer text-gray-600 hover:text-gray-900 w-6 h-6"
 						title="Go Back"
 						onClick={() => setSelected(false)}
 					/>
 					<div className="flex items-center gap-2">
 						<Button
-							icon={Trash2Icon}
+							icon={<Icon name="trash-2" className="w-4 h-4" title="Delete Memo" />}
 							title="Delete Memo"
 							onClick={handleDelete}
 						/>

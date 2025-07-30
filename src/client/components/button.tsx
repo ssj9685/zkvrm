@@ -1,19 +1,16 @@
-import type {
-	ButtonHTMLAttributes,
-	DetailedHTMLProps,
-	ElementType,
-} from "react";
+import type { ButtonHTMLAttributes, DetailedHTMLProps } from "react";
+import type { Icon } from "./icons/icon";
 
 interface ButtonProps
 	extends DetailedHTMLProps<
 		ButtonHTMLAttributes<HTMLButtonElement>,
 		HTMLButtonElement
 	> {
-	icon: ElementType;
+	icon: ReturnType<typeof Icon>;
 	title: string;
 }
 
-export function Button({ icon: Icon, title, ...props }: ButtonProps) {
+export function Button({ icon, title, name, ...props }: ButtonProps) {
 	return (
 		<button
 			type="button"
@@ -21,7 +18,7 @@ export function Button({ icon: Icon, title, ...props }: ButtonProps) {
 			className="p-2 rounded-full hover:bg-gray-200"
 			{...props}
 		>
-			<Icon className="w-5 h-5" title={title} />
+			{icon}
 		</button>
 	);
 }
