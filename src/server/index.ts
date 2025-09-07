@@ -195,7 +195,9 @@ const server = serve({
 					"Content-Disposition": 'attachment; filename="memos.txt.gz"',
 				});
 
-				return new Response(compressed, { headers });
+				const ab = new ArrayBuffer(compressed.byteLength);
+				new Uint8Array(ab).set(compressed);
+				return new Response(ab, { headers });
 			},
 		},
 		"/api/*": {
