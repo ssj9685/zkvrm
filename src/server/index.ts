@@ -34,7 +34,7 @@ async function getUserFromSession(
 
 const server = serve({
 	routes: {
-		"/*": html,
+		// API routes first; catch-all last
 		"/api/auth/register": {
 			async POST(req) {
 				const { username, password } = await req.json();
@@ -198,6 +198,21 @@ const server = serve({
 				return new Response(compressed, { headers });
 			},
 		},
+		"/api/*": {
+			async GET() {
+				return new Response("Not Found", { status: 404 });
+			},
+			async POST() {
+				return new Response("Not Found", { status: 404 });
+			},
+			async PUT() {
+				return new Response("Not Found", { status: 404 });
+			},
+			async DELETE() {
+				return new Response("Not Found", { status: 404 });
+			},
+		},
+		"/*": html,
 	},
 
 	development: process.env.NODE_ENV !== "production" && {

@@ -6,7 +6,7 @@
 	"main": "src/server/index.ts",
 	"module": "src/server/index.ts",
 	"scripts": {
-		"dev": "bun --hot src/server/index.ts",
+		"dev": "bun src/server/index.ts",
 		"build": "bun build ./src/client/main.tsx --outdir=dist --sourcemap --target=browser --minify --define:process.env.NODE_ENV='\"production\"' --env='BUN_PUBLIC_*'",
 		"start": "NODE_ENV=production bun src/server/index.ts",
 		"migrate": "bun run scripts/migrate.ts",
@@ -14,7 +14,7 @@
 	},
 	"dependencies": {
 		"@ga-ut/fetcher": "^0.1.1",
-		"@ga-ut/store": "^1.1.4",
+		"@ga-ut/store-react": "^2.0.1",
 		"clsx": "^2.1.1",
 		"react": "19.1.0",
 		"react-dom": "19.1.0",

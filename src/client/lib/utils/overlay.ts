@@ -1,6 +1,7 @@
 "use client";
 
-import { Store, useStore } from "@ga-ut/store";
+import { Store } from "@ga-ut/store-core";
+import { useStore } from "@ga-ut/store-react";
 import type React from "react";
 
 interface OverlayElement {

@@ -1,23 +1,22 @@
-import { useState } from "react";
-import { authStore } from "@client/store/auth";
 import { FormButton } from "@client/components/form-button";
 import { Input } from "@client/components/input";
 import { toast } from "@client/components/toast/toast-overlay";
+import { authStore } from "@client/store/auth";
+import { routeStore } from "@client/store/route";
+import { useStore } from "@ga-ut/store-react";
+import { useState } from "react";
 
-export function RegisterPage({
-	onRegisterSuccess,
-}: {
-	onRegisterSuccess: () => void;
-}) {
+export function RegisterPage() {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
+	const router = useStore(routeStore);
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 
 		try {
 			await authStore.getState().register({ username, password });
-			onRegisterSuccess();
+			router.goto("/sign-in");
 		} catch (_) {
 			toast.open("Failed to register");
 		}

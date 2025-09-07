@@ -1,18 +1,11 @@
-import { LoginPage } from "@client/pages/auth/login-page";
-import { RegisterPage } from "@client/pages/auth/register-page";
-import { Store } from "@ga-ut/store";
+import { Store } from "@ga-ut/store-core";
 
-const routes = {
-	"/sign-in": LoginPage,
-	"/sign-up": RegisterPage,
-} as const;
-
-type Route = keyof typeof routes;
+type Route = "/" | "/memo" | "/sign-in" | "/sign-up" | "/icon-preview";
 
 export const routeStore = new Store({
-	current: "" as Route,
-	routes,
+	current: window.location.pathname as Route,
 	goto(route: Route) {
 		this.current = route;
+		window.history.pushState(null, "", route);
 	},
 });

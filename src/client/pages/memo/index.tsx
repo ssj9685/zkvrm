@@ -5,7 +5,8 @@ import { toast } from "@client/components/toast/toast-overlay";
 import { useDebounceCallback } from "@client/hooks/use-debounce-callback";
 import { authStore } from "@client/store/auth";
 import { memoStore } from "@client/store/memo";
-import { useStore } from "@ga-ut/store";
+import { routeStore } from "@client/store/route";
+import { useStore } from "@ga-ut/store-react";
 import { useEffect, useState } from "react";
 
 const handleDownload = async () => {
@@ -22,6 +23,7 @@ const handleDownload = async () => {
 export function MemoPage() {
 	const { user, logout } = useStore(authStore);
 	const { create, refresh } = useStore(memoStore);
+	const router = useStore(routeStore);
 	const [searchTerm, setSearchTerm] = useState("");
 
 	const debouncedRefresh = useDebounceCallback(refresh, 500);
@@ -32,6 +34,7 @@ export function MemoPage() {
 
 	const handleLogout = () => {
 		logout();
+		router.goto("/sign-in");
 	};
 
 	const handleDownloadClick = () => {
@@ -46,7 +49,10 @@ export function MemoPage() {
 		<div className="p-4 relative min-h-screen">
 			<div className="flex justify-between items-center mb-4">
 				<h1 className="text-xl font-semibold">{user?.username}</h1>
-				<PopoverMenu icon={<Icon name="settings" className="w-6 h-6" title="Settings" />} title="Options">
+				<PopoverMenu
+					icon={<Icon name="settings" className="w-6 h-6" title="Settings" />}
+					title="Options"
+				>
 					<button
 						type="button"
 						onClick={handleDownloadClick}
@@ -155,7 +161,9 @@ function MemoItem({
 					/>
 					<div className="flex items-center gap-2">
 						<Button
-							icon={<Icon name="trash-2" className="w-4 h-4" title="Delete Memo" />}
+							icon={
+								<Icon name="trash-2" className="w-4 h-4" title="Delete Memo" />
+							}
 							title="Delete Memo"
 							onClick={handleDelete}
 						/>

@@ -5,7 +5,7 @@
       "name": "bun-react-template",
       "dependencies": {
         "@ga-ut/fetcher": "^0.1.1",
-        "@ga-ut/store": "^1.1.4",
+        "@ga-ut/store-react": "^2.0.1",
         "clsx": "^2.1.1",
         "react": "19.1.0",
         "react-dom": "19.1.0",
@@ -42,7 +42,9 @@
 
     "@ga-ut/fetcher": ["@ga-ut/fetcher@0.1.1", "", {}, "sha512-v6MZi9r+c16251rk6YORuvEa5NESiymcKuHzlFakLtoH0KZ66jAAiUotn6UAR3tE5ZAbwopWO1/LD8Z6Qfy1qQ=="],
 
-    "@ga-ut/store": ["@ga-ut/store@1.1.4", "", { "peerDependencies": { "@types/react": ">=18.0.0", "react": ">=18.0.0" } }, "sha512-a+ev075VVuZVEy1csbT+HxkOwE8NHSWAffKxVUKOTwniCmnC4rkRmWby6ohDLY+bjliv5uj2UFPjhY+SeE0G5g=="],
+    "@ga-ut/store-core": ["@ga-ut/store-core@2.0.1", "", {}, "sha512-y8boSgIFhfOcI5kZMmzymU7dgoEuvG3Jw6XCsqm+GjtGxPK3rq6QMDafTqJMQJKNZgwBtRkSKn1pwtttm1dCSA=="],
+
+    "@ga-ut/store-react": ["@ga-ut/store-react@2.0.1", "", { "dependencies": { "@ga-ut/store-core": "^2.0.1" }, "peerDependencies": { "@types/react": ">=18.0.0", "react": ">=18.0.0" } }, "sha512-QPgDIzlqB9z1ltxP+nDZSG1LKzr5Q8d0MFCsZ5nJnB8KIRDmNkJB/979JEto/Ebpsat8LUkW8WNzn2tcuteQnQ=="],
 
     "@types/bun": ["@types/bun@1.2.19", "", { "dependencies": { "bun-types": "1.2.19" } }, "sha512-d9ZCmrH3CJ2uYKXQIUuZ/pUnTqIvLDS0SK7pFmbx8ma+ziH/FRMoAq5bYpRG7y+w1gl+HgyNZbtqgMq4W4e2Lg=="],
 

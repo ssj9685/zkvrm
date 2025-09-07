@@ -6,11 +6,11 @@ import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 
 const store = createOverlayStore();
-const { open: overlayOpen } = store.getState();
+const overlay = store.getState();
 
 export const toast = {
 	open(text: string) {
-		overlayOpen({
+		overlay.open({
 			element: ({ isOpen, close, unmount }) => {
 				const handleClose = () => {
 					close();
