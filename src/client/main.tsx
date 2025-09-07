@@ -5,12 +5,17 @@
  * It is included in `src/index.html`.
  */
 
+import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { Router } from "./components/router/router";
 
 const elem = document.getElementById("root");
 if (!elem) throw new Error("Root element not found");
-const app = <Router />;
+const app = (
+	<StrictMode>
+		<Router />
+	</StrictMode>
+);
 
 if (import.meta.hot) {
 	// With hot module reloading, `import.meta.hot.data` is persisted.
