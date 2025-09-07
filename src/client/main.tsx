@@ -7,13 +7,17 @@
 
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { ModalSpace } from "./components/modal/modal-overlay";
 import { Router } from "./components/router/router";
+import { ToastSpace } from "./components/toast/toast-overlay";
 
 const elem = document.getElementById("root");
 if (!elem) throw new Error("Root element not found");
 const app = (
 	<StrictMode>
 		<Router />
+		<ToastSpace />
+		<ModalSpace />
 	</StrictMode>
 );
 
