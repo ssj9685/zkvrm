@@ -9,3 +9,8 @@ export const routeStore = new Store({
 		window.history.pushState(null, "", route);
 	},
 });
+
+// Ensure browser back/forward buttons update the router state
+window.addEventListener("popstate", () => {
+	routeStore.getState().goto(window.location.pathname as Route);
+});

@@ -7,11 +7,11 @@ import { FetcherError } from "@ga-ut/fetcher";
 import { useStore } from "@ga-ut/store-react";
 import { useState } from "react";
 
-	export function LoginPage() {
-		const [username, setUsername] = useState("");
-		const [password, setPassword] = useState("");
-		const { login, checkAuth } = useStore(authStore);
-		const router = useStore(routeStore);
+export function LoginPage() {
+	const [username, setUsername] = useState("");
+	const [password, setPassword] = useState("");
+	const { login, checkAuth } = useStore(authStore);
+	const router = useStore(routeStore);
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -29,31 +29,42 @@ import { useState } from "react";
 		}
 	};
 
-		return (
-			<div className="min-h-screen w-full flex items-center justify-center px-4">
-				<div className="max-w-md w-full bg-white p-8 border border-gray-200 rounded-lg shadow-sm">
-					<h2 className="text-2xl font-bold text-center text-gray-900 mb-6">
-						Login
-					</h2>
-					<form onSubmit={handleSubmit} className="space-y-6">
-						<Input
-							label="Username"
-							type="text"
-							value={username}
-							onChange={(e) => setUsername(e.target.value)}
-							required
-						/>
-						<Input
-							label="Password"
-							type="password"
-							value={password}
-							onChange={(e) => setPassword(e.target.value)}
-							required
-						/>
+	return (
+		<div className="min-h-screen w-full flex items-center justify-center px-4">
+			<div className="max-w-md w-full bg-white p-8 border border-gray-200 rounded-lg shadow-sm">
+				<h2 className="text-2xl font-bold text-center text-gray-900 mb-6">
+					Login
+				</h2>
+				<form onSubmit={handleSubmit} className="space-y-6">
+					<Input
+						label="Username"
+						type="text"
+						value={username}
+						onChange={(e) => setUsername(e.target.value)}
+						required
+					/>
+					<Input
+						label="Password"
+						type="password"
+						value={password}
+						onChange={(e) => setPassword(e.target.value)}
+						required
+					/>
 
-						<FormButton>Sign In</FormButton>
-					</form>
-				</div>
+					<FormButton>Sign In</FormButton>
+				</form>
+
+				<p className="mt-6 text-center text-sm text-gray-600">
+					Don’t have an account?
+					<button
+						type="button"
+						onClick={() => router.goto("/sign-up")}
+						className="ml-1 font-medium text-blue-600 hover:text-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded"
+					>
+						Sign up
+					</button>
+				</p>
 			</div>
-		);
-	}
+		</div>
+	);
+}

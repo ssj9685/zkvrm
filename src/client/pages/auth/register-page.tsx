@@ -23,28 +23,30 @@ export function RegisterPage() {
 	};
 
 	return (
-		<div className="max-w-md w-full bg-white p-8 border border-gray-200 rounded-lg shadow-sm">
-			<h2 className="text-2xl font-bold text-center text-gray-900 mb-6">
-				Register
-			</h2>
-			<form onSubmit={handleSubmit} className="space-y-6">
-				<Input
-					label="Username"
-					type="text"
-					value={username}
-					onChange={(e) => setUsername(e.target.value)}
-					required
-				/>
-				<Input
-					label="Password"
-					type="password"
-					value={password}
-					onChange={(e) => setPassword(e.target.value)}
-					required
-				/>
+		<div className="min-h-screen w-full flex items-center justify-center px-4">
+			<div className="max-w-md w-full bg-white p-8 border border-gray-200 rounded-lg shadow-sm">
+				<h2 className="text-2xl font-bold text-center text-gray-900 mb-6">
+					Register
+				</h2>
+				<form onSubmit={handleSubmit} className="space-y-6">
+					<Input
+						label="Username"
+						type="text"
+						value={username}
+						onChange={(e) => setUsername(e.target.value)}
+						required
+					/>
+					<Input
+						label="Password"
+						type="password"
+						value={password}
+						onChange={(e) => setPassword(e.target.value)}
+						required
+					/>
 
-				<FormButton>Create Account</FormButton>
-			</form>
+					<FormButton>Create Account</FormButton>
+				</form>
+			</div>
 		</div>
 	);
 }
