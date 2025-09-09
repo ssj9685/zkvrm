@@ -32,7 +32,12 @@ async function getUserFromSession(
 	return user;
 }
 
+const port = Number.parseInt(process.env.PORT ?? "3000", 10) || 3000;
+const hostname = process.env.HOST ?? "0.0.0.0";
+
 const server = serve({
+	port,
+	hostname,
 	routes: {
 		// API routes first; catch-all last
 		"/api/auth/register": {
