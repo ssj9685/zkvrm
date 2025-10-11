@@ -1,36 +1,36 @@
 {
-  "name": "bun-react-template",
-  "version": "0.1.0",
-  "private": true,
-  "type": "module",
-  "main": "src/server/index.ts",
-  "module": "src/server/index.ts",
-  "scripts": {
-    "dev": "bun src/server/index.ts",
-    "build": "bun build ./src/client/main.tsx --outdir=dist --sourcemap --target=browser --minify --define:process.env.NODE_ENV='\"production\"' --env='BUN_PUBLIC_*'",
-    "start": "NODE_ENV=production bun src/server/index.ts",
-    "migrate": "bun run scripts/migrate.ts",
-    "create-migration": "bun run scripts/create-migration.ts",
-    "snapshot:once": "bun run scripts/run-snapshot-once.ts"
-  },
-  "dependencies": {
-    "@aws-sdk/client-s3": "^3.893.0",
-    "@ga-ut/fetcher": "^0.1.1",
-    "@ga-ut/store-react": "^2.0.2",
-    "clsx": "^2.1.1",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
-    "tailwind-merge": "^3.3.1",
-    "tailwindcss": "^4.1.11"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "2.0.6",
-    "@types/bun": "latest",
-    "@types/react": "^19.1.8",
-    "@types/react-dom": "^19.1.6",
-    "bun-plugin-tailwind": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  }
+	"name": "bun-react-template",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"main": "src/server/index.ts",
+	"module": "src/server/index.ts",
+	"scripts": {
+		"dev": "bun src/server/index.ts",
+		"build": "bun build --target=bun --production --outdir=dist ./src/server/index.ts",
+		"start": "NODE_ENV=production bun src/server/index.ts",
+		"migrate": "bun run scripts/migrate.ts",
+		"create-migration": "bun run scripts/create-migration.ts",
+		"snapshot:once": "bun run scripts/run-snapshot-once.ts"
+	},
+	"dependencies": {
+		"@aws-sdk/client-s3": "^3.893.0",
+		"@ga-ut/fetcher": "^0.1.1",
+		"@ga-ut/store-react": "^2.0.2",
+		"clsx": "^2.1.1",
+		"react": "19.1.0",
+		"react-dom": "19.1.0",
+		"tailwind-merge": "^3.3.1",
+		"tailwindcss": "^4.1.11"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.0.6",
+		"@types/bun": "latest",
+		"@types/react": "^19.1.8",
+		"@types/react-dom": "^19.1.6",
+		"bun-plugin-tailwind": "latest"
+	},
+	"peerDependencies": {
+		"typescript": "^5"
+	}
 }
