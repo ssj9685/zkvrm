@@ -2,7 +2,8 @@ import { Database } from "bun:sqlite";
 import { readdir } from "node:fs/promises";
 import { join } from "node:path";
 
-const db = new Database("zkvrm.sqlite");
+const databasePath = process.env.SQLITE_PATH ?? "zkvrm.sqlite";
+const db = new Database(databasePath);
 
 db.run(`
   CREATE TABLE IF NOT EXISTS schema_migrations (

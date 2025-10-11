@@ -78,3 +78,29 @@ src
 - `PUT /api/memo/:id`: 특정 ID의 메모를 수정합니다. (body: `{ "content": "..." }`)
 - `DELETE /api/memo/:id`: 특정 ID의 메모를 삭제합니다.
 - `GET /api/memo/download`: 모든 메모를 `gzip` 압축 파일로 다운로드합니다.
+
+## 💾 데이터베이스 스냅샷 업로드
+
+서버는 `zkvrm.sqlite`를 주기적으로 스냅샷으로 생성해 지정한 S3 버킷에 업로드합니다. 기본 주기는 1시간이며, 처음 실행 후 약 10초 뒤에 첫 업로드가 이루어집니다. 다음 환경 변수를 사용해 동작을 제어할 수 있습니다.
+
+| 환경 변수 | 설명 | 기본값 |
+| --- | --- | --- |
+| `S3_SNAPSHOT_BUCKET` | 스냅샷을 업로드할 S3 버킷 이름 **(필수)** | 없음 |
+| `S3_SNAPSHOT_URI` | `s3://bucket/optional/prefix` 형식으로 버킷과 경로를 한 번에 지정 | 없음 |
+| `AWS_REGION` / `AWS_DEFAULT_REGION` | S3 클라이언트 리전 | 없음 (필수 중 하나) |
+| `S3_SNAPSHOT_PREFIX` | 업로드 시 사용할 경로 prefix (`logs/db/` 등). 끝의 `/`는 자동으로 추가됩니다. | 빈 문자열 |
+| `S3_SNAPSHOT_INTERVAL` / `S3_SNAPSHOT_INTERVAL_MS` | 스냅샷 주기. `15m`, `6h`, `86400000`(ms) 형태 지원 | `1h` |
+| `S3_SNAPSHOT_INITIAL_DELAY` / `S3_SNAPSHOT_INITIAL_DELAY_MS` | 첫 업로드까지 대기 시간 (`30s`, `5000` 등) | `min(interval, 10s)` |
+| `S3_SNAPSHOT_ENDPOINT` | (선택) S3 호환 스토리지 엔드포인트 URL | 설정 안 함 |
+| `S3_SNAPSHOT_FORCE_PATH_STYLE` | `true`로 설정 시 path-style URL 사용 | `false` |
+| `SQLITE_PATH` | 백업할 SQLite 파일 경로 | `zkvrm.sqlite` |
+
+AWS 자격 증명은 표준 SDK 방식(`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, 프로필 등)을 그대로 따릅니다. 스냅샷 파일은 SQLite의 `VACUUM INTO`를 사용해 임시 디렉터리에 생성한 후 업로드하며, 완료되면 자동으로 정리됩니다.
+
+- `S3_SNAPSHOT_URI`를 사용하면 `S3_SNAPSHOT_BUCKET`과 `S3_SNAPSHOT_PREFIX`를 따로 지정할 필요 없이 `s3://my-bucket/backups/prod`처럼 한 번에 구성할 수 있습니다. 이때 `S3_SNAPSHOT_PREFIX`를 추가로 지정하면 URI 뒤에 하위 경로가 붙습니다.
+- 경로 접두사가 비어 있으면 루트에 `zkvrm-<timestamp>-<uuid>.sqlite` 파일이 생성됩니다.
+
+### 수동 업로드 및 검증
+
+- 스케줄러 동작과 별개로 `bun run snapshot:once` 명령으로 즉시 스냅샷을 업로드할 수 있습니다. 이미 업로드가 진행 중이면 `A snapshot upload is already in progress.` 오류가 표시됩니다.
+- 명령 실행 후 서버 로그에서 `Uploaded s3://<bucket>/<key>` 메시지를 확인하거나, `aws s3 ls s3://<bucket>/<prefix>` 또는 `aws s3api head-object --bucket <bucket> --key <key>`로 업로드된 파일을 검증하세요.
