@@ -1,37 +1,33 @@
-import { fetcher } from "@client/lib/utils/fetcher";
+import { api } from "@client/lib/api/session";
 import { Store } from "@ga-ut/store-core";
+import type { MemoDownloadPayload, MemoRecord } from "@server/api/memo-api";
 
-type Memo = {
-	id: number;
-	content: string;
-	created_at: number;
-};
-
-async function refresh(query?: string) {
-	const url = query
-		? `/api/memo?query=${encodeURIComponent(query)}`
-		: "/api/memo";
-	return await fetcher.get<Memo[]>(url);
+async function fetchMemos(query?: string) {
+	return await api().memo.list({ query });
 }
 
 export const memoStore = new Store({
-	memos: [] as Memo[],
+	memos: [] as MemoRecord[],
 	async refresh(query?: string) {
-		this.memos = await refresh(query);
+		this.memos = await fetchMemos(query);
 	},
-	async create(data: Pick<Memo, "content">) {
-		await fetcher.post("/api/memo", data);
-		this.memos = await refresh();
+	async create(data: Pick<MemoRecord, "content">) {
+		await api().memo.create(data);
+		this.memos = await fetchMemos();
 	},
-	async update({ id, content }: Pick<Memo, "id" | "content">) {
-		await fetcher.put(`/api/memo/${id}`, { content });
-		this.memos = await refresh();
+	async update({ id, content }: Pick<MemoRecord, "id" | "content">) {
+		await api().memo.update({ id, content });
+		this.memos = await fetchMemos();
 	},
-	async remove({ id }: Pick<Memo, "id">) {
-		await fetcher.delete(`/api/memo/${id}`, {});
-		this.memos = await refresh();
+	async remove({ id }: Pick<MemoRecord, "id">) {
+		await api().memo.remove({ id });
+		this.memos = await fetchMemos();
 	},
 	async download() {
-		return await fetcher.get<Blob>("/api/memo/download");
+		const payload: MemoDownloadPayload = await api().memo.download();
+		return {
+			filename: payload.filename,
+			blob: new Blob([payload.data], { type: payload.contentType }),
+		};
 	},
 });

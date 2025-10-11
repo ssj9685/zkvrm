@@ -61,23 +61,32 @@ bun run start
 
 ```
 src
-├── assets/         # HTML, CSS, SVG 등 정적 에셋
-├── domains/        # 비즈니스 로직 및 상태 관리 (memoStore)
-├── pages/          # React 페이지 컴포넌트
-│   └── memo/       # 메모 페이지 관련 컴포넌트
-├── server.tsx      # Bun 서버 및 API 라우팅 로직
-└── shared/         # 공유 컴포넌트 및 유틸리티
-    ├── components/ # 재사용 가능한 UI 컴포넌트 (Button, Icons)
-    └── utils/      # 유틸리티 함수 (fetcher)
+├── client/
+│   ├── lib/api/            # Cap'n Web 세션 래퍼
+│   ├── pages/              # React 페이지 컴포넌트
+│   ├── store/              # 전역 상태 스토어
+│   └── index.html          # 번들 엔트리
+└── server/
+    ├── api/                # Cap'n Web RpcTarget 클래스 (auth, memo, root)
+    ├── auth/               # 세션 파싱 유틸리티
+    ├── logger.ts           # 경량 파일 기반 로거
+    ├── snapshot-scheduler.ts
+    └── index.ts            # Bun 서버 엔트리 (Cap'n Web 라우터)
 ```
 
-## 🌐 API 엔드포인트
+## 🔌 Cap'n Web RPC 인터페이스
 
-- `GET /api/memo`: 모든 메모 목록을 조회합니다.
-- `POST /api/memo`: 새로운 메모를 생성합니다. (body: `{ "content": "..." }`)
-- `PUT /api/memo/:id`: 특정 ID의 메모를 수정합니다. (body: `{ "content": "..." }`)
-- `DELETE /api/memo/:id`: 특정 ID의 메모를 삭제합니다.
-- `GET /api/memo/download`: 모든 메모를 `gzip` 압축 파일로 다운로드합니다.
+- `/api` 단일 엔드포인트에서 [Cap'n Web](https://github.com/cloudflare/capnweb)을 통해 RPC를 제공합니다.
+- 클라이언트는 `src/client/lib/api/session.ts`의 `createSession()`으로 세션을 생성하고, 반환된 스텁에서 비즈니스 메서드를 호출합니다.
+- 주요 메서드:
+  - `api.auth.register({ username, password })`
+  - `api.auth.login({ username, password })`
+  - `api.auth.me() -> { id, username } | null`
+  - `api.auth.logout()`
+  - `api.memo.list({ query? }) -> MemoRecord[]`
+  - `api.memo.create({ content })`, `api.memo.update({ id, content })`, `api.memo.remove({ id })`
+  - `api.memo.download() -> { filename, contentType, data: ArrayBuffer }`
+- 서버와 클라이언트는 `import type`을 통해 인터페이스를 공유하므로 번들에 서버 코드는 포함되지 않습니다.
 
 ## 💾 데이터베이스 스냅샷 업로드
 

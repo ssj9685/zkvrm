@@ -3,7 +3,6 @@ import { Input } from "@client/components/input";
 import { toast } from "@client/components/toast/toast-overlay";
 import { authStore } from "@client/store/auth";
 import { routeStore } from "@client/store/route";
-import { FetcherError } from "@ga-ut/fetcher";
 import { useStore } from "@ga-ut/store-react";
 import { useState } from "react";
 
@@ -21,11 +20,15 @@ export function LoginPage() {
 			await checkAuth();
 			router.goto("/memo");
 		} catch (error) {
-			if (error instanceof FetcherError) {
-				if (error.statusCode === 401) {
+			if (error instanceof Error) {
+				if (error.message === "Invalid username or password") {
 					toast.open("Invalid username or password");
+					return;
 				}
+				toast.open(error.message);
+				return;
 			}
+			toast.open("Failed to sign in");
 		}
 	};
 

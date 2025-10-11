@@ -7,14 +7,15 @@ import { authStore } from "@client/store/auth";
 import { memoStore } from "@client/store/memo";
 import { routeStore } from "@client/store/route";
 import { useStore } from "@ga-ut/store-react";
+import type { MemoRecord } from "@server/api/memo-api";
 import { useEffect, useState } from "react";
 
 const handleDownload = async () => {
-	const blob = await memoStore.getState().download();
+	const { blob, filename } = await memoStore.getState().download();
 	const url = window.URL.createObjectURL(blob);
 	const a = document.createElement("a");
 	a.href = url;
-	a.download = "memos.txt.gz";
+	a.download = filename;
 	document.body.appendChild(a);
 	a.click();
 	a.remove();
@@ -123,11 +124,7 @@ function MemoList() {
 	);
 }
 
-function MemoItem({
-	memo,
-}: {
-	memo: { id: number; content: string; created_at: number };
-}) {
+function MemoItem({ memo }: { memo: MemoRecord }) {
 	const [selected, setSelected] = useState(false);
 	const [currentContent, setCurrentContent] = useState(memo.content);
 	const { update, remove } = useStore(memoStore);

@@ -15,8 +15,8 @@
 	},
 	"dependencies": {
 		"@aws-sdk/client-s3": "^3.893.0",
-		"@ga-ut/fetcher": "^0.1.1",
 		"@ga-ut/store-react": "^2.0.2",
+		"capnweb": "^0.1.0",
 		"clsx": "^2.1.1",
 		"react": "19.1.0",
 		"react-dom": "19.1.0",

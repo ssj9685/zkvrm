@@ -1,10 +1,8 @@
-import { fetcher } from "@client/lib/utils/fetcher";
+import { api } from "@client/lib/api/session";
 import { Store } from "@ga-ut/store-core";
+import type { AuthenticatedUser } from "@server/auth/session";
 
-type User = {
-	id: number;
-	username: string;
-};
+type User = AuthenticatedUser;
 
 export const authStore = new Store({
 	isLoggedIn: false,
@@ -12,20 +10,26 @@ export const authStore = new Store({
 	isLoading: true,
 
 	async login(data: { username: string; password: string }) {
-		await fetcher.post("/api/auth/login", data);
+		const user = await api().auth.login(data);
 		this.isLoggedIn = true;
+		this.user = user;
 	},
 
 	async register(data: { username: string; password: string }) {
-		await fetcher.post("/api/auth/register", data);
+		await api().auth.register(data);
 	},
 
 	async checkAuth() {
 		this.isLoading = true;
 		try {
-			const user = await fetcher.get<User>("/api/auth/me");
-			this.isLoggedIn = true;
-			this.user = user;
+			const user = await api().auth.me();
+			if (user) {
+				this.isLoggedIn = true;
+				this.user = user;
+			} else {
+				this.isLoggedIn = false;
+				this.user = null;
+			}
 		} catch (_) {
 			this.isLoggedIn = false;
 			this.user = null;
@@ -35,7 +39,7 @@ export const authStore = new Store({
 	},
 
 	async logout() {
-		await fetcher.post("/api/auth/logout", {});
+		await api().auth.logout();
 		this.isLoggedIn = false;
 		this.user = null;
 	},
