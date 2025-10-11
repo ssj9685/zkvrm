@@ -6,6 +6,12 @@ import { db } from "@server/db";
 import { logger } from "@server/logger";
 import { RpcTarget } from "capnweb";
 import type { ApiContext } from "./context";
+import {
+	InvalidCredentialsError,
+	toRpcError,
+	UsernameTakenError,
+	ValidationError,
+} from "./errors";
 
 const SESSION_COOKIE_NAME = "sessionId";
 const SESSION_MAX_AGE_SECONDS = 7 * 24 * 60 * 60;
@@ -23,14 +29,16 @@ export class AuthApi extends RpcTarget {
 	async register({ username, password }: Credentials) {
 		const normalizedUsername = username?.trim();
 		if (!normalizedUsername || !password) {
-			throw new Error("Username and password are required");
+			throw toRpcError(
+				new ValidationError("Username and password are required"),
+			);
 		}
 
 		const existingUser = db
 			.query("SELECT id FROM users WHERE username = ?")
 			.get(normalizedUsername);
 		if (existingUser) {
-			throw new Error("Username already taken");
+			throw toRpcError(new UsernameTakenError());
 		}
 
 		const passwordHash = await Bun.password.hash(password);
@@ -56,7 +64,7 @@ export class AuthApi extends RpcTarget {
 		} | null;
 
 		if (!user || !(await Bun.password.verify(password, user.password_hash))) {
-			throw new Error("Invalid username or password");
+			throw toRpcError(new InvalidCredentialsError());
 		}
 
 		const sessionId = crypto.randomUUID();

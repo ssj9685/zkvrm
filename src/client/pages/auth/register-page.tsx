@@ -1,6 +1,7 @@
 import { FormButton } from "@client/components/form-button";
 import { Input } from "@client/components/input";
 import { toast } from "@client/components/toast/toast-overlay";
+import { ApiErrorCode, getApiError } from "@client/lib/api/errors";
 import { authStore } from "@client/store/auth";
 import { routeStore } from "@client/store/route";
 import { useStore } from "@ga-ut/store-react";
@@ -17,7 +18,16 @@ export function RegisterPage() {
 		try {
 			await authStore.getState().register({ username, password });
 			router.goto("/sign-in");
-		} catch (_) {
+		} catch (error) {
+			const apiError = getApiError(error);
+			if (apiError) {
+				if (apiError.code === ApiErrorCode.AUTH_USERNAME_TAKEN) {
+					toast.open("Username already taken");
+					return;
+				}
+				toast.open(apiError.message);
+				return;
+			}
 			toast.open("Failed to register");
 		}
 	};

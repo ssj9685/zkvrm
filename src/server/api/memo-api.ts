@@ -2,6 +2,7 @@ import { getUserFromSession } from "@server/auth/session";
 import { db } from "@server/db";
 import { RpcTarget } from "capnweb";
 import type { ApiContext } from "./context";
+import { toRpcError, UnauthorizedError } from "./errors";
 
 export type MemoRecord = {
 	id: number;
@@ -12,7 +13,7 @@ export type MemoRecord = {
 export type MemoDownloadPayload = {
 	filename: string;
 	contentType: string;
-	data: ArrayBuffer;
+	data: Uint8Array;
 };
 
 type MemoQueryOptions = {
@@ -77,10 +78,8 @@ export class MemoApi extends RpcTarget {
 			.join("\n\n");
 
 		const compressed = Bun.gzipSync(Buffer.from(content));
-		const data = compressed.buffer.slice(
-			compressed.byteOffset,
-			compressed.byteOffset + compressed.byteLength,
-		);
+		const data = new Uint8Array(compressed.byteLength);
+		data.set(compressed);
 
 		return {
 			filename: "memos.txt.gz",
@@ -92,7 +91,7 @@ export class MemoApi extends RpcTarget {
 	async #requireUser() {
 		const user = await getUserFromSession(this.context.request);
 		if (!user) {
-			throw new Error("Unauthorized");
+			throw toRpcError(new UnauthorizedError());
 		}
 		return user;
 	}

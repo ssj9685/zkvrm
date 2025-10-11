@@ -1,6 +1,7 @@
 import { FormButton } from "@client/components/form-button";
 import { Input } from "@client/components/input";
 import { toast } from "@client/components/toast/toast-overlay";
+import { ApiErrorCode, getApiError } from "@client/lib/api/errors";
 import { authStore } from "@client/store/auth";
 import { routeStore } from "@client/store/route";
 import { useStore } from "@ga-ut/store-react";
@@ -20,12 +21,13 @@ export function LoginPage() {
 			await checkAuth();
 			router.goto("/memo");
 		} catch (error) {
-			if (error instanceof Error) {
-				if (error.message === "Invalid username or password") {
+			const apiError = getApiError(error);
+			if (apiError) {
+				if (apiError.code === ApiErrorCode.AUTH_INVALID_CREDENTIALS) {
 					toast.open("Invalid username or password");
 					return;
 				}
-				toast.open(error.message);
+				toast.open(apiError.message);
 				return;
 			}
 			toast.open("Failed to sign in");
