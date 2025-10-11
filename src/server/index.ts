@@ -1,3 +1,4 @@
+import { logger } from "@server/logger";
 import { routes } from "@server/routes";
 import { startDatabaseSnapshotScheduler } from "@server/snapshot-scheduler";
 import { serve } from "bun";
@@ -15,6 +16,6 @@ const server = serve({
 	},
 });
 
-console.log(`🚀 Server running at ${server.url}`);
+logger.info(`Server running at ${server.url}`);
 
 startDatabaseSnapshotScheduler();

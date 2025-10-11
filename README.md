@@ -104,3 +104,17 @@ AWS 자격 증명은 표준 SDK 방식(`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_K
 
 - 스케줄러 동작과 별개로 `bun run snapshot:once` 명령으로 즉시 스냅샷을 업로드할 수 있습니다. 이미 업로드가 진행 중이면 `A snapshot upload is already in progress.` 오류가 표시됩니다.
 - 명령 실행 후 서버 로그에서 `Uploaded s3://<bucket>/<key>` 메시지를 확인하거나, `aws s3 ls s3://<bucket>/<prefix>` 또는 `aws s3api head-object --bucket <bucket> --key <key>`로 업로드된 파일을 검증하세요.
+
+## 📜 로그 관리
+
+1GB 메모리 환경을 고려해 서버는 기본적으로 콘솔 출력 대신 파일 로그를 사용합니다. 로그 파일은 루트의 `logs/zkvrm.log`에 기록되며, 디렉터리가 없으면 자동으로 생성됩니다.
+
+| 환경 변수 | 설명 | 기본값 |
+| --- | --- | --- |
+| `LOG_FILE` / `SERVER_LOG_FILE` | 로그 파일 경로 | `logs/zkvrm.log` |
+| `LOG_LEVEL` | 파일에 기록할 최소 로그 레벨 (`error`, `warn`, `info`, `debug`) | `info` |
+| `CONSOLE_LOG_LEVEL` / `LOG_CONSOLE_LEVEL` | 콘솔에 출력할 최소 로그 레벨 | `warn` |
+
+- `tail -f logs/zkvrm.log`로 실시간 로그를 확인하고, 필요 시 `LOG_FILE=/var/log/zkvrm/server.log`처럼 경로를 재지정하세요.
+- 콘솔로도 정보 로그를 확인하고 싶다면 `CONSOLE_LOG_LEVEL=info bun run start`처럼 실행합니다.
+- 서비스가 정상적으로 시작되면 로그 파일에 `Server running at ...` 메시지가 기록되며, 스냅샷 업로드 결과도 같은 파일에 누적됩니다.

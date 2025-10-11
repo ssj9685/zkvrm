@@ -5,6 +5,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
+import { logger } from "@server/logger";
+
 const SQLITE_PATH = process.env.SQLITE_PATH ?? "zkvrm.sqlite";
 const DEFAULT_INTERVAL_MS = 60 * 60 * 1000;
 const DEFAULT_INITIAL_DELAY_MS = 10_000;
@@ -71,11 +73,11 @@ export function startDatabaseSnapshotScheduler() {
 	hasStarted = true;
 
 	if (!snapshotConfig.enabled) {
-		console.info(`${logPrefix} ${snapshotConfig.reason}`);
+		logger.info(`${logPrefix} ${snapshotConfig.reason}`);
 		return;
 	}
 
-	console.info(
+	logger.info(
 		`${logPrefix} Enabled. Uploading ${SQLITE_PATH} to s3://${snapshotConfig.bucket}/${snapshotConfig.keyPrefix} every ${formatDuration(snapshotConfig.intervalMs)} (first run in ${formatDuration(snapshotConfig.initialDelayMs)}).`,
 	);
 
@@ -176,7 +178,7 @@ function resolveInterval(label: string, rawValue?: string) {
 
 	const parsed = parseDuration(rawValue);
 	if (parsed == null) {
-		console.warn(`${logPrefix} Unable to parse ${label} value '${rawValue}'.`);
+		logger.warn(`${logPrefix} Unable to parse ${label} value '${rawValue}'.`);
 	}
 	return parsed ?? undefined;
 }
@@ -187,7 +189,7 @@ function normaliseInterval(value: number | undefined, fallback: number) {
 	}
 
 	if (!Number.isFinite(value) || value < MIN_INTERVAL_MS) {
-		console.warn(
+		logger.warn(
 			`${logPrefix} Interval ${value}ms is invalid or too small. Using ${fallback}ms instead.`,
 		);
 		return fallback;
@@ -219,7 +221,7 @@ function resolveSnapshotDestination(): SnapshotDestination {
 
 		const bucketFromEnv = process.env.S3_SNAPSHOT_BUCKET;
 		if (bucketFromEnv && bucketFromEnv !== parsed.bucket) {
-			console.warn(
+			logger.warn(
 				`${logPrefix} Ignoring S3_SNAPSHOT_BUCKET='${bucketFromEnv}' because S3_SNAPSHOT_URI sets bucket='${parsed.bucket}'.`,
 			);
 		}
@@ -307,7 +309,7 @@ function logSuccessfulUpload(
 	config: EnabledSnapshotConfig,
 	result: SnapshotUploadResult,
 ) {
-	console.info(
+	logger.info(
 		`${logPrefix} Uploaded s3://${config.bucket}/${result.objectKey} (${formatBytes(result.bytes)}) in ${formatDuration(result.durationMs)}.`,
 	);
 }
@@ -322,11 +324,11 @@ async function runScheduledSnapshot() {
 		logSuccessfulUpload(snapshotConfig, result);
 	} catch (error) {
 		if (error instanceof SnapshotInProgressError) {
-			console.warn(
+			logger.warn(
 				`${logPrefix} Previous snapshot still in progress; skipping this run.`,
 			);
 		} else {
-			console.error(`${logPrefix} Failed to upload snapshot`, error);
+			logger.error(`${logPrefix} Failed to upload snapshot`, error);
 		}
 	} finally {
 		scheduleNext(snapshotConfig.intervalMs);

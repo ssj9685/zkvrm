@@ -37,6 +37,7 @@
 - Only expose environment variables prefixed with `BUN_PUBLIC_`; keep secrets server-side.
 - SQLite data lives in `zkvrm.sqlite` for local development—never commit production datasets.
 - Prefer Bun primitives (`Bun.file`, `bun:sqlite`, `Bun.serve`) over Node alternatives to stay aligned with platform expectations.
+- Runtime logging appends to `logs/zkvrm.log` by default; adjust with `LOG_FILE`/`SERVER_LOG_FILE` and keep console output lean to respect the 1GB RAM budget.
 
 ---
 description: Use Bun instead of Node.js, npm, pnpm, or vite.
