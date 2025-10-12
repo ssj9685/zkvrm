@@ -13,7 +13,7 @@ export type MemoRecord = {
 export type MemoDownloadPayload = {
 	filename: string;
 	contentType: string;
-	data: Uint8Array;
+	data: Uint8Array<ArrayBuffer>;
 };
 
 type MemoQueryOptions = {
