@@ -3,9 +3,9 @@ import { randomUUID } from "node:crypto";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-
 import { logger } from "@server/logger";
+import type { S3Options } from "bun";
+import { S3Client } from "bun";
 
 const SQLITE_PATH = process.env.SQLITE_PATH ?? "zkvrm.sqlite";
 const DEFAULT_INTERVAL_MS = 60 * 60 * 1000;
@@ -32,8 +32,11 @@ type EnabledSnapshotConfig = {
 	keyPrefix: string;
 	intervalMs: number;
 	initialDelayMs: number;
-	endpoint?: string;
 	forcePathStyle: boolean;
+	endpoint: string;
+	accessKeyId: string;
+	secretAccessKey: string;
+	sessionToken?: string;
 };
 
 type SnapshotConfig = DisabledSnapshotConfig | EnabledSnapshotConfig;
@@ -56,9 +59,13 @@ type SnapshotDestination =
 const snapshotConfig = resolveSnapshotConfig();
 const s3Client = snapshotConfig.enabled
 	? new S3Client({
+			accessKeyId: snapshotConfig.accessKeyId,
+			secretAccessKey: snapshotConfig.secretAccessKey,
+			bucket: snapshotConfig.bucket,
 			region: snapshotConfig.region,
 			endpoint: snapshotConfig.endpoint,
-			forcePathStyle: snapshotConfig.forcePathStyle,
+			virtualHostedStyle: !snapshotConfig.forcePathStyle,
+			sessionToken: snapshotConfig.sessionToken,
 		})
 	: null;
 
@@ -159,6 +166,39 @@ function resolveSnapshotConfig(): SnapshotConfig {
 		Math.min(intervalMs, DEFAULT_INITIAL_DELAY_MS),
 	);
 
+	const accessKeyId =
+		process.env.S3_ACCESS_KEY_ID ?? process.env.AWS_ACCESS_KEY_ID;
+	if (!accessKeyId) {
+		return {
+			enabled: false,
+			reason:
+				"S3 snapshots disabled: S3_ACCESS_KEY_ID or AWS_ACCESS_KEY_ID must be set.",
+		};
+	}
+
+	const secretAccessKey =
+		process.env.S3_SECRET_ACCESS_KEY ?? process.env.AWS_SECRET_ACCESS_KEY;
+	if (!secretAccessKey) {
+		return {
+			enabled: false,
+			reason:
+				"S3 snapshots disabled: S3_SECRET_ACCESS_KEY or AWS_SECRET_ACCESS_KEY must be set.",
+		};
+	}
+
+	const sessionToken =
+		process.env.S3_SESSION_TOKEN ?? process.env.AWS_SESSION_TOKEN;
+	const forcePathStyle = process.env.S3_SNAPSHOT_FORCE_PATH_STYLE === "true";
+	const endpoint = resolveSnapshotEndpoint({
+		explicit:
+			process.env.S3_SNAPSHOT_ENDPOINT ??
+			process.env.S3_ENDPOINT ??
+			process.env.AWS_ENDPOINT,
+		region,
+		bucket,
+		forcePathStyle,
+	});
+
 	return {
 		enabled: true,
 		bucket,
@@ -166,8 +206,11 @@ function resolveSnapshotConfig(): SnapshotConfig {
 		keyPrefix,
 		intervalMs,
 		initialDelayMs,
-		endpoint: process.env.S3_SNAPSHOT_ENDPOINT,
-		forcePathStyle: process.env.S3_SNAPSHOT_FORCE_PATH_STYLE === "true",
+		endpoint,
+		forcePathStyle,
+		accessKeyId,
+		secretAccessKey,
+		sessionToken: sessionToken ?? undefined,
 	};
 }
 
@@ -205,6 +248,30 @@ function normaliseKeyPrefix(rawPrefix?: string) {
 
 	const trimmed = rawPrefix.trim().replace(/^\/+/, "").replace(/\/+$/, "");
 	return trimmed.length ? `${trimmed}/` : "";
+}
+
+function resolveSnapshotEndpoint({
+	explicit,
+	region,
+	bucket,
+	forcePathStyle,
+}: {
+	explicit?: string | null;
+	region: string;
+	bucket: string;
+	forcePathStyle: boolean;
+}) {
+	const provided = explicit?.trim();
+	if (provided && provided.length > 0) {
+		return provided;
+	}
+
+	if (forcePathStyle) {
+		return `https://s3.${region}.amazonaws.com`;
+	}
+
+	const normalisedBucket = bucket.trim();
+	return `https://${normalisedBucket}.s3.${region}.amazonaws.com`;
 }
 
 function resolveSnapshotDestination(): SnapshotDestination {
@@ -373,22 +440,19 @@ async function performSnapshotUpload(
 
 	try {
 		const file = Bun.file(filePath);
-		const body = new Uint8Array(await file.arrayBuffer());
 		const objectKey = buildObjectKey(config);
 
-		await client.send(
-			new PutObjectCommand({
-				Bucket: config.bucket,
-				Key: objectKey,
-				Body: body,
-				ContentType: "application/x-sqlite3",
-				ContentLength: file.size,
-				Metadata: {
-					database: SQLITE_PATH,
-					"created-at": new Date().toISOString(),
-				},
-			}),
-		);
+		const uploadOptions: S3Options & {
+			metadata?: Record<string, string>;
+		} = {
+			type: "application/x-sqlite3",
+			metadata: {
+				database: SQLITE_PATH,
+				"created-at": new Date().toISOString(),
+			},
+		};
+
+		await client.write(objectKey, file, uploadOptions);
 
 		return {
 			objectKey,
