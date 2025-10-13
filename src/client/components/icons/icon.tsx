@@ -1,5 +1,5 @@
 import type React from "react";
-import href from "../../assets/icons.svg";
+import spriteUrl from "../../assets/icons.svg";
 
 export const iconNames = [
 	"arrow-left",
@@ -28,10 +28,18 @@ export function Icon({
 	className,
 	...props
 }: IconProps & { title: string }) {
+	const symbolId = `icon-${name}`;
+	const inlineHref = `#${symbolId}`;
+	const fallbackHref = `${spriteUrl}#${symbolId}`;
+	const resolvedHref =
+		typeof document !== "undefined" && document.getElementById(symbolId)
+			? inlineHref
+			: fallbackHref;
+
 	return (
 		<svg className={className} {...props}>
 			<title className="sr-only">{title}</title>
-			<use href={`${href}#icon-${name}`} />
+			<use href={resolvedHref} xlinkHref={resolvedHref} />
 		</svg>
 	);
 }
