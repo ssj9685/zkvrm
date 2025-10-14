@@ -33,3 +33,20 @@ if (import.meta.hot) {
 	// The hot module reloading API is not available in production.
 	createRoot(elem).render(app);
 }
+
+if (!import.meta.hot && "serviceWorker" in navigator) {
+	window.addEventListener("load", () => {
+		navigator.serviceWorker
+			.register("/service-worker.js", { type: "module" })
+			.catch((error) => {
+				console.error("Service worker registration failed", error);
+			});
+	});
+} else if (import.meta.hot && "serviceWorker" in navigator) {
+	// Avoid stale service workers during local development with HMR.
+	navigator.serviceWorker.getRegistrations().then((registrations) => {
+		for (const registration of registrations) {
+			registration.unregister().catch(() => {});
+		}
+	});
+}
