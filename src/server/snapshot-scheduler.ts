@@ -12,6 +12,7 @@ const DEFAULT_INTERVAL_MS = 60 * 60 * 1000;
 const DEFAULT_INITIAL_DELAY_MS = 10_000;
 const MIN_INTERVAL_MS = 5_000;
 const logPrefix = "[db-snapshot]";
+const SNAPSHOT_RETENTION_LIMIT = 6;
 
 class SnapshotInProgressError extends Error {
 	constructor() {
@@ -454,6 +455,12 @@ async function performSnapshotUpload(
 
 		await client.write(objectKey, file, uploadOptions);
 
+		try {
+			await pruneOldSnapshots(config, client, objectKey);
+		} catch (error) {
+			logger.error(`${logPrefix} Failed to prune old snapshots`, error);
+		}
+
 		return {
 			objectKey,
 			bytes: file.size,
@@ -462,6 +469,96 @@ async function performSnapshotUpload(
 	} finally {
 		await rm(tempDir, { recursive: true, force: true }).catch(() => {});
 	}
+}
+
+async function pruneOldSnapshots(
+	config: EnabledSnapshotConfig,
+	client: S3Client,
+	latestKey: string,
+) {
+	if (SNAPSHOT_RETENTION_LIMIT <= 0) {
+		return;
+	}
+
+	const objectPrefix = `${config.keyPrefix}zkvrm-`;
+	let continuationToken: string | undefined;
+	const snapshotMap = new Map<string, number>();
+
+	do {
+		const response = await client.list({
+			prefix: objectPrefix,
+			continuationToken,
+		});
+
+		for (const entry of response.contents ?? []) {
+			if (!entry.key || !entry.key.startsWith(objectPrefix)) {
+				continue;
+			}
+
+			const timestamp = resolveLastModifiedMs(entry.lastModified);
+			const existing = snapshotMap.get(entry.key);
+			snapshotMap.set(
+				entry.key,
+				existing != null ? Math.max(existing, timestamp) : timestamp,
+			);
+		}
+
+		if (response.isTruncated && response.nextContinuationToken) {
+			continuationToken = response.nextContinuationToken;
+		} else {
+			continuationToken = undefined;
+		}
+	} while (continuationToken);
+
+	snapshotMap.set(latestKey, Date.now());
+
+	const snapshots = Array.from(snapshotMap.entries()).map(
+		([key, lastModifiedMs]) => ({ key, lastModifiedMs }),
+	);
+
+	if (snapshots.length <= SNAPSHOT_RETENTION_LIMIT) {
+		return;
+	}
+
+	snapshots.sort((a, b) => {
+		const diff = b.lastModifiedMs - a.lastModifiedMs;
+		if (diff !== 0) {
+			return diff;
+		}
+		return b.key.localeCompare(a.key);
+	});
+
+	const toDelete = snapshots.slice(SNAPSHOT_RETENTION_LIMIT);
+	let deletedCount = 0;
+
+	for (const snapshot of toDelete) {
+		try {
+			await client.delete(snapshot.key);
+			deletedCount += 1;
+		} catch (error) {
+			logger.warn(
+				`${logPrefix} Failed to delete old snapshot ${snapshot.key}`,
+				error,
+			);
+		}
+	}
+
+	if (deletedCount > 0) {
+		logger.info(
+			`${logPrefix} Pruned ${deletedCount} old snapshot${deletedCount === 1 ? "" : "s"} (retaining ${SNAPSHOT_RETENTION_LIMIT}).`,
+		);
+	}
+}
+
+function resolveLastModifiedMs(lastModified: string | undefined) {
+	if (lastModified) {
+		const parsed = Date.parse(lastModified);
+		if (!Number.isNaN(parsed)) {
+			return parsed;
+		}
+	}
+
+	return 0;
 }
 
 function parseS3Uri(uri: string) {
