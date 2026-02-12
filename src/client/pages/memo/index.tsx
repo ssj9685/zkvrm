@@ -19,6 +19,7 @@ const handleDownload = async () => {
 	document.body.appendChild(a);
 	a.click();
 	a.remove();
+	window.URL.revokeObjectURL(url);
 };
 
 export function MemoPage() {
@@ -39,7 +40,9 @@ export function MemoPage() {
 	};
 
 	const handleDownloadClick = () => {
-		handleDownload();
+		handleDownload().catch(() => {
+			toast.open("Download failed!");
+		});
 	};
 
 	useEffect(() => {
@@ -74,6 +77,7 @@ export function MemoPage() {
 			</div>
 			<div className="relative mb-4 w-full sm:w-64">
 				<input
+					id="memo-search-input"
 					type="text"
 					placeholder="Search memos..."
 					value={searchTerm}
@@ -88,8 +92,21 @@ export function MemoPage() {
 					className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
 					title="Search"
 				/>
+				{searchTerm ? (
+					<button
+						type="button"
+						title="Clear search"
+						onClick={() => {
+							setSearchTerm("");
+							refresh("");
+						}}
+						className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+					>
+						<Icon name="x" className="w-4 h-4" title="Clear search" />
+					</button>
+				) : null}
 			</div>
-			<MemoList />
+			<MemoList searchTerm={searchTerm} />
 
 			{/* Floating Action Button for New Memo */}
 			<button
@@ -104,13 +121,18 @@ export function MemoPage() {
 	);
 }
 
-function MemoList() {
+function MemoList({ searchTerm }: { searchTerm: string }) {
 	const { memos } = useStore(memoStore);
 
 	if (!memos || memos.length === 0) {
 		return (
 			<div className="flex flex-col items-center justify-center h-64 text-gray-500">
 				<Icon name="empty-state" className="w-12 h-12 mb-4" title="No Memos" />
+				<p className="text-sm text-center">
+					{searchTerm
+						? "No memos match your search."
+						: "Create your first memo to get started."}
+				</p>
 			</div>
 		);
 	}
