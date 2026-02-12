@@ -1,5 +1,6 @@
 import { getUserFromSession } from "@server/auth/session";
 import { db } from "@server/db";
+import { normalizeMemoQuery } from "@shared/memo-query";
 import { RpcTarget } from "capnweb";
 import type { ApiContext } from "./context";
 import { toRpcError, UnauthorizedError } from "./errors";
@@ -34,10 +35,11 @@ export class MemoApi extends RpcTarget {
 		const user = await this.#requireUser();
 		const params: (string | number)[] = [user.id];
 		let query = "SELECT * FROM memos WHERE user_id = ?";
+		const normalizedQuery = normalizeMemoQuery(options.query);
 
-		if (options.query) {
+		if (normalizedQuery) {
 			query += " AND content LIKE ?";
-			params.push(`%${options.query}%`);
+			params.push(`%${normalizedQuery}%`);
 		}
 
 		query += " ORDER BY created_at DESC";

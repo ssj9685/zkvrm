@@ -1,9 +1,12 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 
 export function useDebounceCallback<T extends (...args: any[]) => any>(
 	callback: T,
 	delay: number,
-): (...args: Parameters<T>) => void {
+): {
+	(...args: Parameters<T>): void;
+	cancel: () => void;
+} {
 	const callbackRef = useRef(callback);
 	const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -11,27 +14,34 @@ export function useDebounceCallback<T extends (...args: any[]) => any>(
 		callbackRef.current = callback;
 	}, [callback]);
 
+	const cancel = useCallback(() => {
+		if (timeoutRef.current) {
+			clearTimeout(timeoutRef.current);
+			timeoutRef.current = null;
+		}
+	}, []);
+
 	useEffect(
 		() => () => {
-			if (timeoutRef.current) {
-				clearTimeout(timeoutRef.current);
-			}
+			cancel();
 		},
-		[],
+		[cancel],
 	);
 
 	const debouncedCallback = useCallback(
 		(...args: Parameters<T>) => {
-			if (timeoutRef.current) {
-				clearTimeout(timeoutRef.current);
-			}
+			cancel();
 
 			timeoutRef.current = setTimeout(() => {
+				timeoutRef.current = null;
 				callbackRef.current(...args);
 			}, delay);
 		},
-		[delay],
+		[cancel, delay],
 	);
 
-	return debouncedCallback;
+	return useMemo(
+		() => Object.assign(debouncedCallback, { cancel }),
+		[cancel, debouncedCallback],
+	);
 }
