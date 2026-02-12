@@ -45,6 +45,12 @@ export function MemoPage() {
 		handleDownload();
 	};
 
+	const clearSearch = () => {
+		debouncedRefresh.cancel();
+		setSearchTerm("");
+		refresh("");
+	};
+
 	useEffect(() => {
 		refresh("");
 	}, [refresh]);
@@ -89,8 +95,7 @@ export function MemoPage() {
 							return;
 						}
 
-						setSearchTerm("");
-						refresh("");
+						clearSearch();
 					}}
 					className="pl-8 pr-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-gray-500 w-full"
 				/>
@@ -102,10 +107,7 @@ export function MemoPage() {
 				{normalizeMemoQuery(searchTerm) ? (
 					<button
 						type="button"
-						onClick={() => {
-							setSearchTerm("");
-							refresh("");
-						}}
+						onClick={clearSearch}
 						className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-500 hover:text-gray-700"
 					>
 						Clear
