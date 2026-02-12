@@ -8,6 +8,7 @@ import { memoStore } from "@client/store/memo";
 import { routeStore } from "@client/store/route";
 import { useStore } from "@ga-ut/store-react";
 import type { MemoRecord } from "@server/api/memo-api";
+import { normalizeMemoQuery } from "@shared/memo-query";
 import { useEffect, useState } from "react";
 
 const handleDownload = async () => {
@@ -27,7 +28,15 @@ export function MemoPage() {
 	const router = useStore(routeStore);
 	const [searchTerm, setSearchTerm] = useState("");
 
-	const debouncedRefresh = useDebounceCallback(refresh, 500);
+	const debouncedRefresh = useDebounceCallback((query: string) => {
+		refresh(query);
+	}, 500);
+
+	const clearSearch = () => {
+		debouncedRefresh.cancel();
+		setSearchTerm("");
+		refresh("");
+	};
 
 	const handleNewMemo = async () => {
 		create({ content: "New memo" });
@@ -81,6 +90,13 @@ export function MemoPage() {
 						setSearchTerm(e.target.value);
 						debouncedRefresh(e.target.value);
 					}}
+					onKeyDown={(e) => {
+						if (e.key !== "Escape") {
+							return;
+						}
+
+						clearSearch();
+					}}
 					className="pl-8 pr-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-gray-500 w-full"
 				/>
 				<Icon
@@ -88,6 +104,15 @@ export function MemoPage() {
 					className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
 					title="Search"
 				/>
+				{normalizeMemoQuery(searchTerm) ? (
+					<button
+						type="button"
+						onClick={clearSearch}
+						className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-500 hover:text-gray-700"
+					>
+						Clear
+					</button>
+				) : null}
 			</div>
 			<MemoList />
 
