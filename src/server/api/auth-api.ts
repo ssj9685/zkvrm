@@ -4,11 +4,9 @@ import {
 } from "@server/auth/session";
 import { db } from "@server/db";
 import { logger } from "@server/logger";
-import { RpcTarget } from "capnweb";
 import type { ApiContext } from "./context";
 import {
 	InvalidCredentialsError,
-	toRpcError,
 	UsernameTakenError,
 	ValidationError,
 } from "./errors";
@@ -21,24 +19,20 @@ type Credentials = {
 	password: string;
 };
 
-export class AuthApi extends RpcTarget {
-	constructor(private readonly context: ApiContext) {
-		super();
-	}
+export class AuthApi {
+	constructor(private readonly context: ApiContext) {}
 
 	async register({ username, password }: Credentials) {
 		const normalizedUsername = username?.trim();
 		if (!normalizedUsername || !password) {
-			throw toRpcError(
-				new ValidationError("Username and password are required"),
-			);
+			throw new ValidationError("Username and password are required");
 		}
 
 		const existingUser = db
 			.query("SELECT id FROM users WHERE username = ?")
 			.get(normalizedUsername);
 		if (existingUser) {
-			throw toRpcError(new UsernameTakenError());
+			throw new UsernameTakenError();
 		}
 
 		const passwordHash = await Bun.password.hash(password);
@@ -52,7 +46,7 @@ export class AuthApi extends RpcTarget {
 	async login({ username, password }: Credentials): Promise<AuthenticatedUser> {
 		const normalizedUsername = username?.trim();
 		if (!normalizedUsername || !password) {
-			throw new Error("Username and password are required");
+			throw new ValidationError("Username and password are required");
 		}
 
 		const user = db
@@ -64,7 +58,7 @@ export class AuthApi extends RpcTarget {
 		} | null;
 
 		if (!user || !(await Bun.password.verify(password, user.password_hash))) {
-			throw toRpcError(new InvalidCredentialsError());
+			throw new InvalidCredentialsError();
 		}
 
 		const sessionId = crypto.randomUUID();

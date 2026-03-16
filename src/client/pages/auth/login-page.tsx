@@ -1,3 +1,4 @@
+import { AuthShell } from "@client/components/auth/auth-shell";
 import { FormButton } from "@client/components/form-button";
 import { Input } from "@client/components/input";
 import { toast } from "@client/components/toast/toast-overlay";
@@ -24,52 +25,53 @@ export function LoginPage() {
 			const apiError = getApiError(error);
 			if (apiError) {
 				if (apiError.code === ApiErrorCode.AUTH_INVALID_CREDENTIALS) {
-					toast.open("Invalid username or password");
+					toast.open("아이디 또는 비밀번호가 맞지 않습니다");
 					return;
 				}
 				toast.open(apiError.message);
 				return;
 			}
-			toast.open("Failed to sign in");
+			toast.open("작업실에 들어오지 못했습니다");
 		}
 	};
 
 	return (
-		<div className="min-h-screen w-full flex items-center justify-center px-4">
-			<div className="max-w-md w-full bg-white p-8 border border-gray-200 rounded-lg shadow-sm">
-				<h2 className="text-2xl font-bold text-center text-gray-900 mb-6">
-					Login
-				</h2>
-				<form onSubmit={handleSubmit} className="space-y-6">
+		<AuthShell
+			badge="다시 이어쓰기"
+			title="메모판으로 돌아오기"
+			subtitle="기록의 흐름을 끊지 않고, 방금까지 이어 쓰던 보드로 바로 돌아갑니다."
+			footer={
+				<p className="text-center">
+					아직 작업실이 없다면
+					<button
+						type="button"
+						onClick={() => router.goto("/sign-up")}
+						className="ml-1 rounded font-semibold text-[var(--accent-strong)] transition hover:text-[var(--accent)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[var(--focus-ring)]"
+					>
+						새로 만들기
+					</button>
+				</p>
+			}
+		>
+			<form onSubmit={handleSubmit} className="space-y-5">
+				<div className="grid gap-4">
 					<Input
-						label="Username"
+						label="아이디"
 						type="text"
 						value={username}
 						onChange={(e) => setUsername(e.target.value)}
 						required
 					/>
 					<Input
-						label="Password"
+						label="비밀번호"
 						type="password"
 						value={password}
 						onChange={(e) => setPassword(e.target.value)}
 						required
 					/>
-
-					<FormButton>Sign In</FormButton>
-				</form>
-
-				<p className="mt-6 text-center text-sm text-gray-600">
-					Don’t have an account?
-					<button
-						type="button"
-						onClick={() => router.goto("/sign-up")}
-						className="ml-1 font-medium text-blue-600 hover:text-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded"
-					>
-						Sign up
-					</button>
-				</p>
-			</div>
-		</div>
+				</div>
+				<FormButton>작업실 들어가기</FormButton>
+			</form>
+		</AuthShell>
 	);
 }
