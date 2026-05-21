@@ -62,22 +62,23 @@ bun run start
 ```
 src
 ├── client/
-│   ├── lib/api/            # Cap'n Web 세션 래퍼
+│   ├── lib/api/            # JSON API 클라이언트 래퍼
 │   ├── pages/              # React 페이지 컴포넌트
 │   ├── store/              # 전역 상태 스토어
 │   └── index.html          # 번들 엔트리
 └── server/
-    ├── api/                # Cap'n Web RpcTarget 클래스 (auth, memo, root)
+    ├── api/                # auth, memo API 클래스와 HTTP 디스패치 대상
     ├── auth/               # 세션 파싱 유틸리티
     ├── logger.ts           # 경량 파일 기반 로거
     ├── snapshot-scheduler.ts
-    └── index.ts            # Bun 서버 엔트리 (Cap'n Web 라우터)
+    └── index.ts            # Bun 서버 엔트리와 JSON API 라우터
 ```
 
-## 🔌 Cap'n Web RPC 인터페이스
+## 🔌 JSON API 인터페이스
 
-- `/api` 단일 엔드포인트에서 [Cap'n Web](https://github.com/cloudflare/capnweb)을 통해 RPC를 제공합니다.
-- 클라이언트는 `src/client/lib/api/session.ts`의 `createSession()`으로 세션을 생성하고, 반환된 스텁에서 비즈니스 메서드를 호출합니다.
+- `/api/{resource}/{method}` 엔드포인트에 JSON `POST` 요청을 보내는 방식으로 API를 제공합니다.
+- 성공 응답은 `{ ok: true, result }`, 실패 응답은 `{ ok: false, error: { code, message, status } }` 형태입니다.
+- 클라이언트는 `src/client/lib/api/session.ts`의 `createSession()`으로 세션을 생성하고, 반환된 스텁에서 기존처럼 비즈니스 메서드를 호출합니다.
 - 주요 메서드:
   - `api.auth.register({ username, password })`
   - `api.auth.login({ username, password })`
@@ -85,7 +86,7 @@ src
   - `api.auth.logout()`
   - `api.memo.list({ query? }) -> MemoRecord[]`
   - `api.memo.create({ content })`, `api.memo.update({ id, content })`, `api.memo.remove({ id })`
-  - `api.memo.download() -> { filename, contentType, data: ArrayBuffer }`
+  - `api.memo.download() -> { filename, contentType, data: Uint8Array }`
 - 서버와 클라이언트는 `import type`을 통해 인터페이스를 공유하므로 번들에 서버 코드는 포함되지 않습니다.
 
 ## 💾 데이터베이스 스냅샷 업로드

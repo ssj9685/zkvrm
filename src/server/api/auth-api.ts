@@ -4,7 +4,6 @@ import {
 } from "@server/auth/session";
 import { db } from "@server/db";
 import { logger } from "@server/logger";
-import { RpcTarget } from "capnweb";
 import type { ApiContext } from "./context";
 import {
 	InvalidCredentialsError,
@@ -21,10 +20,8 @@ type Credentials = {
 	password: string;
 };
 
-export class AuthApi extends RpcTarget {
-	constructor(private readonly context: ApiContext) {
-		super();
-	}
+export class AuthApi {
+	constructor(private readonly context: ApiContext) {}
 
 	async register({ username, password }: Credentials) {
 		const normalizedUsername = username?.trim();
@@ -52,7 +49,9 @@ export class AuthApi extends RpcTarget {
 	async login({ username, password }: Credentials): Promise<AuthenticatedUser> {
 		const normalizedUsername = username?.trim();
 		if (!normalizedUsername || !password) {
-			throw new Error("Username and password are required");
+			throw toRpcError(
+				new ValidationError("Username and password are required"),
+			);
 		}
 
 		const user = db

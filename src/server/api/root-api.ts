@@ -1,15 +1,13 @@
-import { RpcTarget } from "capnweb";
 import { AuthApi } from "./auth-api";
 import type { ApiContext } from "./context";
 import { MemoApi } from "./memo-api";
 
-export class RootApi extends RpcTarget {
+export class RootApi {
 	#context: ApiContext;
 	#auth?: AuthApi;
 	#memo?: MemoApi;
 
 	constructor(context: ApiContext) {
-		super();
 		this.#context = context;
 	}
 
