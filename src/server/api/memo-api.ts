@@ -1,7 +1,6 @@
 import { getUserFromSession } from "@server/auth/session";
 import { db } from "@server/db";
 import { normalizeMemoQuery } from "@shared/memo-query";
-import { RpcTarget } from "capnweb";
 import type { ApiContext } from "./context";
 import { toRpcError, UnauthorizedError } from "./errors";
 
@@ -26,10 +25,8 @@ type MemoUpdatePayload = {
 	content: string;
 };
 
-export class MemoApi extends RpcTarget {
-	constructor(private readonly context: ApiContext) {
-		super();
-	}
+export class MemoApi {
+	constructor(private readonly context: ApiContext) {}
 
 	async list(options: MemoQueryOptions = {}): Promise<MemoRecord[]> {
 		const user = await this.#requireUser();
