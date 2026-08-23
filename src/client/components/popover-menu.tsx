@@ -7,9 +7,17 @@ interface PopoverMenuProps {
 	icon: ReturnType<typeof Icon>;
 	title: string;
 	children: React.ReactNode;
+	triggerTestId?: string;
+	menuTestId?: string;
 }
 
-export function PopoverMenu({ icon, title, children }: PopoverMenuProps) {
+export function PopoverMenu({
+	icon,
+	title,
+	children,
+	triggerTestId,
+	menuTestId,
+}: PopoverMenuProps) {
 	const [isOpen, setIsOpen] = useState(false);
 	const menuRef = useRef<HTMLDivElement>(null);
 
@@ -26,11 +34,34 @@ export function PopoverMenu({ icon, title, children }: PopoverMenuProps) {
 		};
 	}, []);
 
+	useEffect(() => {
+		const handleEscape = (event: KeyboardEvent) => {
+			if (event.key === "Escape") {
+				setIsOpen(false);
+			}
+		};
+
+		document.addEventListener("keydown", handleEscape);
+		return () => {
+			document.removeEventListener("keydown", handleEscape);
+		};
+	}, []);
+
 	return (
 		<div className="relative" ref={menuRef}>
-			<Button icon={icon} title={title} onClick={() => setIsOpen(!isOpen)} />
+			<Button
+				icon={icon}
+				title={title}
+				aria-expanded={isOpen}
+				aria-haspopup="menu"
+				onClick={() => setIsOpen(!isOpen)}
+				data-testid={triggerTestId}
+			/>
 			{isOpen && (
-				<div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-20">
+				<div
+					className="ui-enter-soft absolute right-0 z-20 mt-3 w-56 overflow-hidden rounded-[1.1rem_1.4rem_1rem_1.35rem] border border-[var(--border-strong)] bg-[linear-gradient(180deg,rgba(255,253,247,0.98)_0%,rgba(255,249,239,0.95)_100%)] shadow-[var(--shadow-board)] backdrop-blur"
+					data-testid={menuTestId}
+				>
 					{children}
 				</div>
 			)}

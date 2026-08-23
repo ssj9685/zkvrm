@@ -70,7 +70,7 @@ function ToastInner({
 			type="button"
 			tabIndex={0}
 			className={cn(
-				"opacity-0 transition-all fixed bottom-[60px] left-1/2 -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg transition-discrete",
+				"fixed bottom-8 left-1/2 -translate-x-1/2 rotate-[-1.6deg] rounded-[1.1rem_1.45rem_1rem_1.35rem] border border-[var(--border-strong)] bg-[linear-gradient(180deg,rgba(255,249,239,0.98)_0%,rgba(255,240,225,0.98)_100%)] px-5 py-3 text-sm font-semibold text-[var(--accent-strong)] opacity-0 shadow-[var(--shadow-board)] transition-all duration-300",
 				isOpen && "opacity-100",
 			)}
 			onTouchStart={handleTouchStart}

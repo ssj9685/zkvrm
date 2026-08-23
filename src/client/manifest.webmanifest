@@ -1,11 +1,11 @@
 {
 	"name": "zkvrm",
 	"short_name": "zkvrm",
-	"description": "Lightweight memo manager built with Bun and React.",
+	"description": "손으로 붙인 듯한 메모판을 만드는 Bun + React 메모 앱.",
 	"start_url": ".",
 	"display": "standalone",
-	"background_color": "#0f172a",
-	"theme_color": "#0f172a",
+	"background_color": "#f7efdf",
+	"theme_color": "#f7efdf",
 	"icons": [
 		{
 			"src": "/assets/zkvrm.svg",

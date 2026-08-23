@@ -14,28 +14,30 @@ db.run(`
 `);
 
 async function runMigrations() {
-  const migrationsDir = join(import.meta.dir, "migrations");
-  const files = await readdir(migrationsDir);
+	const migrationsDir = join(import.meta.dir, "migrations");
+	const files = await readdir(migrationsDir);
 
-  const migrationFiles = files
-    .filter((file) => file.endsWith(".sql"))
-    .sort();
+	const migrationFiles = files.filter((file) => file.endsWith(".sql")).sort();
 
-  for (const file of migrationFiles) {
-    const migrationName = file;
-    const hasRun = db.query("SELECT id FROM schema_migrations WHERE name = ?").get(migrationName);
+	for (const file of migrationFiles) {
+		const migrationName = file;
+		const hasRun = db
+			.query("SELECT id FROM schema_migrations WHERE name = ?")
+			.get(migrationName);
 
-    if (!hasRun) {
-      console.log(`Running migration: ${migrationName}`);
-      const sql = await Bun.file(join(migrationsDir, file)).text();
-      db.run(sql);
-      db.run("INSERT INTO schema_migrations (name) VALUES (?)", [migrationName]);
-      console.log(`Migration ${migrationName} completed.`);
-    } else {
-      console.log(`Migration ${migrationName} already applied.`);
-    }
-  }
-  console.log("All migrations checked.");
+		if (!hasRun) {
+			console.log(`Running migration: ${migrationName}`);
+			const sql = await Bun.file(join(migrationsDir, file)).text();
+			db.run(sql);
+			db.run("INSERT INTO schema_migrations (name) VALUES (?)", [
+				migrationName,
+			]);
+			console.log(`Migration ${migrationName} completed.`);
+		} else {
+			console.log(`Migration ${migrationName} already applied.`);
+		}
+	}
+	console.log("All migrations checked.");
 }
 
-runMigrations().catch(console.error);
+await runMigrations();

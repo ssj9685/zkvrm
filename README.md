@@ -62,31 +62,36 @@ bun run start
 ```
 src
 ├── client/
-│   ├── lib/api/            # Cap'n Web 세션 래퍼
+│   ├── lib/api/            # typed fetch API 세션 래퍼
 │   ├── pages/              # React 페이지 컴포넌트
 │   ├── store/              # 전역 상태 스토어
 │   └── index.html          # 번들 엔트리
 └── server/
-    ├── api/                # Cap'n Web RpcTarget 클래스 (auth, memo, root)
+    ├── api/                # HTTP 핸들러 + 비즈니스 서비스 (auth, memo)
     ├── auth/               # 세션 파싱 유틸리티
     ├── logger.ts           # 경량 파일 기반 로거
     ├── snapshot-scheduler.ts
-    └── index.ts            # Bun 서버 엔트리 (Cap'n Web 라우터)
+    └── index.ts            # Bun 서버 엔트리 (HTTP 라우터)
 ```
 
-## 🔌 Cap'n Web RPC 인터페이스
+## 🔌 HTTP API 인터페이스
 
-- `/api` 단일 엔드포인트에서 [Cap'n Web](https://github.com/cloudflare/capnweb)을 통해 RPC를 제공합니다.
-- 클라이언트는 `src/client/lib/api/session.ts`의 `createSession()`으로 세션을 생성하고, 반환된 스텁에서 비즈니스 메서드를 호출합니다.
-- 주요 메서드:
-  - `api.auth.register({ username, password })`
-  - `api.auth.login({ username, password })`
-  - `api.auth.me() -> { id, username } | null`
-  - `api.auth.logout()`
-  - `api.memo.list({ query? }) -> MemoRecord[]`
-  - `api.memo.create({ content })`, `api.memo.update({ id, content })`, `api.memo.remove({ id })`
-  - `api.memo.download() -> { filename, contentType, data: ArrayBuffer }`
-- 서버와 클라이언트는 `import type`을 통해 인터페이스를 공유하므로 번들에 서버 코드는 포함되지 않습니다.
+- 서버는 명시적인 HTTP 엔드포인트를 제공합니다. 클라이언트는 `src/client/lib/api/session.ts`의 typed fetch 래퍼를 통해 `api().auth.*`, `api().memo.*` 형태로 호출합니다.
+- 주요 엔드포인트:
+  - `POST /api/auth/register`
+  - `POST /api/auth/login`
+  - `POST /api/auth/logout`
+  - `GET /api/auth/me`
+  - `POST /api/memos/list`
+  - `POST /api/memos`
+  - `PATCH /api/memos/:id/content`
+  - `PATCH /api/memos/:id/meta`
+  - `PATCH /api/memos/:id/brain-position`
+  - `DELETE /api/memos/:id`
+  - `GET /api/memos/download`
+  - `GET|POST /api/tags`
+  - `PATCH|DELETE /api/tags/:id`
+- 다운로드 엔드포인트는 `gzip` 파일 본문을 직접 반환하며, 클라이언트 래퍼가 이를 `Uint8Array`로 변환해 기존 호출부와 호환되게 유지합니다.
 
 ## 💾 데이터베이스 스냅샷 업로드
 

@@ -1,10 +1,8 @@
 import html from "@client/index.html";
-import { ApiContext } from "@server/api/context";
-import { RootApi } from "@server/api/root-api";
+import { apiRoutes } from "@server/api/http-routes";
 import { logger } from "@server/logger";
 import { startDatabaseSnapshotScheduler } from "@server/snapshot-scheduler";
 import { serve } from "bun";
-import { newHttpBatchRpcResponse } from "capnweb";
 
 const clientRoot = new URL("../client/", import.meta.url);
 const serviceWorkerSource = new URL(
@@ -114,23 +112,7 @@ const routes = {
 			return headResponse(response);
 		},
 	},
-	"/api": {
-		async POST(req: Request) {
-			const context = new ApiContext(req);
-			const api = new RootApi(context);
-			const response = await newHttpBatchRpcResponse(req, api);
-			return context.applyCookies(response);
-		},
-		async GET() {
-			return new Response("Method Not Allowed", { status: 405 });
-		},
-		async PUT() {
-			return new Response("Method Not Allowed", { status: 405 });
-		},
-		async DELETE() {
-			return new Response("Method Not Allowed", { status: 405 });
-		},
-	},
+	...apiRoutes,
 	"/api/*": {
 		async GET() {
 			return new Response("Not Found", { status: 404 });

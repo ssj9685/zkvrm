@@ -39,21 +39,3 @@ export class UnauthorizedError extends ApiError {
 		super(message, "AUTH_UNAUTHORIZED", 401);
 	}
 }
-
-export function toRpcError(error: ApiError): Error {
-	return Object.assign(
-		new Error(
-			JSON.stringify({
-				code: error.code,
-				message: error.message,
-				status: error.status,
-				name: error.name,
-			}),
-		),
-		{
-			name: error.name,
-			code: error.code,
-			status: error.status,
-		},
-	);
-}

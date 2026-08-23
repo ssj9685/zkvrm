@@ -25,12 +25,15 @@ export function Router() {
 
 	if (auth.isLoading) {
 		return (
-			<div className="min-h-screen flex flex-col items-center justify-center text-gray-500">
+			<div className="flex min-h-screen flex-col items-center justify-center gap-3 text-[var(--text-secondary)]">
 				<Icon
-					className="w-8 h-8 animate-spin text-gray-600"
+					className="h-8 w-8 animate-spin text-[var(--accent-strong)]"
 					name="spinner"
-					title="Loading"
+					title="불러오는 중"
 				/>
+				<p className="text-sm font-medium tracking-[0.1em] uppercase">
+					작업실 불러오는 중
+				</p>
 			</div>
 		);
 	}
