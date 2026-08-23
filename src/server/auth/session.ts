@@ -11,7 +11,7 @@ export async function getUserFromSession(
 	const cookie = req.headers.get("Cookie");
 	if (!cookie) return null;
 
-	const sessionId = cookie.match(/sessionId=([^;]+)/)?.[1];
+	const sessionId = cookie.match(/(?:^|;\s*)sessionId=([^;]+)/)?.[1];
 	if (!sessionId) return null;
 
 	const session = db

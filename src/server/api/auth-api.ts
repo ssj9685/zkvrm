@@ -75,8 +75,10 @@ export class AuthApi extends RpcTarget {
 			expiresAt,
 		]);
 
+		const secureAttribute =
+			process.env.NODE_ENV === "production" ? "; Secure" : "";
 		this.context.addCookie(
-			`${SESSION_COOKIE_NAME}=${sessionId}; HttpOnly; Path=/; SameSite=Strict; Max-Age=${SESSION_MAX_AGE_SECONDS}`,
+			`${SESSION_COOKIE_NAME}=${sessionId}; HttpOnly; Path=/; SameSite=Strict; Max-Age=${SESSION_MAX_AGE_SECONDS}${secureAttribute}`,
 		);
 
 		logger.info(`User ${user.username} logged in`);
@@ -89,8 +91,10 @@ export class AuthApi extends RpcTarget {
 			db.run("DELETE FROM sessions WHERE id = ?", [sessionId]);
 		}
 
+		const secureAttribute =
+			process.env.NODE_ENV === "production" ? "; Secure" : "";
 		this.context.addCookie(
-			`${SESSION_COOKIE_NAME}=; HttpOnly; Path=/; SameSite=Strict; Max-Age=0`,
+			`${SESSION_COOKIE_NAME}=; HttpOnly; Path=/; SameSite=Strict; Max-Age=0${secureAttribute}`,
 		);
 	}
 
