@@ -35,7 +35,7 @@ ln -sfn "${SHARED_ENV}" "${release}/.env"
 canary_pid=""
 cleanup_canary() {
 	if [[ -n "${canary_pid}" ]] && kill -0 "${canary_pid}" 2>/dev/null; then
-		kill -INT "${canary_pid}" 2>/dev/null || true
+		kill -TERM "${canary_pid}" 2>/dev/null || true
 		wait "${canary_pid}" 2>/dev/null || true
 	fi
 }
@@ -43,7 +43,7 @@ trap cleanup_canary EXIT
 
 (
 	cd "${release}"
-	env \
+	exec env \
 		HOST=127.0.0.1 \
 		PORT="${CANARY_PORT}" \
 		SQLITE_PATH="${SQLITE_PATH}" \
